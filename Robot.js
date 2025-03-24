@@ -41,6 +41,7 @@ class Robot {
     this.gridY += this.speedY;
     this.targetX = wallWidth + this.gridX * horizontalLineGap;
     this.targetY = wallWidth + this.gridY * verticalLineGap;
+    if (this.gridY === 4) this.targetY -= 30;
   }
 
   updateVertex() {
