@@ -6,6 +6,7 @@ const horizontalLineGap = 250;
 const highLookoutWidth = 150;
 const startWidth = 225;
 var bot;
+var fireArr = [];
 
 function setup() {
   window.canvas = createCanvas(canvasWidth, canvasHeight);
@@ -14,12 +15,17 @@ function setup() {
   angleMode(DEGREES);
 
   bot = new Robot(wallWidth, horizontalLineGap);
+  randomizeFireLocation(); 
 }
 
 function draw() {
   drawArena();
   bot.update();
   bot.show();
+
+  for (const fire of fireArr) {
+    fire.show();
+  }
 }
 
 function keyPressed() {
