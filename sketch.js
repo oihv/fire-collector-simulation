@@ -14,9 +14,12 @@ function draw() {
   const wallWidth = 37.45;
   const verticalWidth = 281;
   const horizontalWidth = 250;
+  const highLookoutWidth = 150;
+  fill('#778da9')
   // Vertical lines
   for (var i = 0 ; i < 7 ; i++) {
     line(wallWidth + (i*horizontalWidth), 0, wallWidth + (i*horizontalWidth), canvasHeight);
+    if (i !== 0 && i !== 6) rect(wallWidth + (i*horizontalWidth) - highLookoutWidth/2, height - wallWidth, highLookoutWidth, wallWidth)
   }
   // Horizontal lines
   for (var i = 0 ; i < 5 ; i++) {
@@ -27,4 +30,5 @@ function draw() {
   fill('#e0e1dd')
   // start position
   square(width/2 - startWidth/2, 0, startWidth);
+
 }
