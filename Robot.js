@@ -20,10 +20,18 @@ class Robot {
 
   // Update the direction
   dir(newSpeedX, newSpeedY) {
+    if (this.isOutConstraint(newSpeedX, newSpeedY)) return;
     this.speedX = newSpeedX;
-    this.speedY = newSpeedY;  
+    this.speedY = newSpeedY;
     this.updateGrid();
-    this.rotateTriangle(newSpeedX, newSpeedX);
+  }
+
+  isOutConstraint(newSpeedX, newSpeedY) {
+    let newGridX = this.gridX + newSpeedX;
+    let newGridY = this.gridY + newSpeedY;
+    if (newGridX > 5 || newGridX < 1) return true; 
+    if (newGridY > 4 || newGridY < 0) return true; 
+    return false;
   }
 
   updateGrid() {
@@ -31,12 +39,9 @@ class Robot {
     this.gridY += this.speedY;
     this.targetX = wallWidth + this.gridX * horizontalLineGap;
     this.targetY = wallWidth + this.gridY * verticalLineGap;
-    console.log(this.x, this.y);
-    console.log(this.targetX, this.targetY);
   }
 
-  rotateTriangle(newSpeedX, newSpeedY) {
-    if (this.speedX === newSpeedX && this.y === newSpeedY) return;
+  updateVertex() {
     if (this.speedX === 1) {
       this.vertex[0][0] = this.x - this.size / 2;
       this.vertex[0][1] = this.y + this.size / 2;
@@ -85,22 +90,23 @@ class Robot {
     if (this.checkArriveTarget()) {
       this.realignPosition();
       this.stop();
+      this.updateVertex();
       return;
     }
     this.x += this.speedX * this.speed;
     this.y += this.speedY * this.speed;
-    console.log("current coor: ", this.x, this.y)
   }
 
   checkArriveTarget() {
-    if (this.speedX === 1 && this.x + this.size / 2 >= this.targetX) return true; 
-    else if (this.speedX === -1 && this.x - this.size / 2 <= this.targetX) return true; 
-    else if (this.speedY === -1 && this.y - this.size / 2 <= this.targetY) return true; 
-    else if (this.speedY === 1 && this.y + this.size / 2 >= this.targetY) return true; 
+    if (this.speedX === 1 && this.x + this.size / 2 >= this.targetX) return true;
+    else if (this.speedX === -1 && this.x - this.size / 2 <= this.targetX) return true;
+    else if (this.speedY === -1 && this.y - this.size / 2 <= this.targetY) return true;
+    else if (this.speedY === 1 && this.y + this.size / 2 >= this.targetY) return true;
     else return false;
   }
 
   show() {
+    this.updateVertex();
     noStroke();
     fill('#778DA9');
     triangle(this.vertex[0][0], this.vertex[0][1], this.vertex[1][0], this.vertex[1][1], this.vertex[2][0], this.vertex[2][1]);
