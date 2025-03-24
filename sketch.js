@@ -32,3 +32,10 @@ function draw() {
   // start position
   square(width/2 - startWidth/2, 0, startWidth);
 }
+
+class Robot {
+  constructor() {
+    this.x = wallWidth + 3*horizontalLineGap; 
+    this.y = wallWidth;
+  }
+};
