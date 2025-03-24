@@ -2,6 +2,12 @@
 A game simulation made in Javascript as a mean to simulate the competition situation of fire 
 collection contest.
 
+## Features
+- [ ] Benchmarks for each simulation
+    including time, moves made, total score
+- [ ] Manual mode
+- [ ] Speed control (x1, x2, etc)
+
 ## Purpose
 To test algorithms for determining the best moves for the robot, and/or train
 "AI" to make the best model to complete this task.
