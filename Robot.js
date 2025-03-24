@@ -1,9 +1,6 @@
-class Robot {
-  constructor(wallWidth, horizontalLineGap) {
-    this.gridX = 3; // starts from 1, end in 5
-    this.gridY = 0; // starts from 0, end in 4
-    this.x = wallWidth + 3 * horizontalLineGap;
-    this.y = wallWidth;
+class Robot extends MainObj {
+  constructor() {
+    super();
     this.size = 60;
 
     this.speed = 15;
