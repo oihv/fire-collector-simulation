@@ -12,7 +12,7 @@ class Robot {
     this.targetX = 0;
     this.targetY = 0;
 
-    this.angle = 0;
+    this.idle = true;
     this.vertex = [[this.x - this.size / 2, this.y - this.size / 2],
     [this.x, this.y + this.size / 2],
     [this.x + this.size / 2, this.y - this.size / 2]];
@@ -20,10 +20,12 @@ class Robot {
 
   // Update the direction
   dir(newSpeedX, newSpeedY) {
+    if (this.idle === false) return;
     if (this.isOutConstraint(newSpeedX, newSpeedY)) return;
     this.speedX = newSpeedX;
     this.speedY = newSpeedY;
     this.updateGrid();
+    this. idle = false;
   }
 
   isOutConstraint(newSpeedX, newSpeedY) {
@@ -88,6 +90,7 @@ class Robot {
 
   update() {
     if (this.checkArriveTarget()) {
+      this.idle = true;
       this.realignPosition();
       this.stop();
       this.updateVertex();
