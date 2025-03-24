@@ -54,10 +54,9 @@ function drawArena() {
     line(0, wallWidth + (i * verticalLineGap), canvasWidth, wallWidth + (i * verticalLineGap));
   }
 
+  // start position
   noStroke();
   fill('#e0e1dd')
-  // start position
   square(width / 2 - startWidth / 2, 0, startWidth);
-
 }
 
