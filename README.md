@@ -15,6 +15,7 @@ To test algorithms for determining the best moves for the robot, and/or train
 ## Main Idea
 A robot that arranges "fires" in a wall with different height, and to arrange
 them in a so called "pairs" to achieve maximum score.
+pairs are when fires not the same colored are placed adjacent to each other.
 
 ## Rules
 ### Arena information
@@ -29,9 +30,21 @@ Take fires, arrange them in the lookout, so that they make pairs.
 ### Points
 Manual -> 10 on high, 5 on low 
 Auto -> 15 on high, 10 on low
-each pair x1.5 of the original score, tbc: is it original score as in the score
-of two fire? or the total score later? this game is made with the latter for
-now.
+each pair x1.5 of the original score
+| Working Mode | Description | Score |
+| ------------ | ----------- | ----- |
+| Manual robot | 1 flame placed on low platform | 5 |
+| | 1 flame placed on high platform | 10 |
+| | pair flame placed on low platform | (5+5)*1.5 = 15 |
+| | pair flame placed on high platform | (10+10)*1.5 = 30 |
+| | two flame with same color placed on low platform | 5 + 5 = 10 |
+| | two flame with same color placed on high platform | 10 + 10 = 20 |
+| Automatic Robot | 1 flame placed on low platform | 10 |
+| | 1 flame placed on high platform | 15 |
+| | pair flame placed on low platform | (10+10)*1.5 = 30 |
+| | pair flame placed on high platform | (15+15)*1.5 = 45 |
+| | two flame with same color placed on low platform | 10 + 10 = 15 |
+| | two flame with same color placed on high platform | 15 + 15 = 30 |
 
 ### Constraint
 1 minute for analyzing the fire location
