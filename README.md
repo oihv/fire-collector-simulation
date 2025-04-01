@@ -50,6 +50,33 @@ each pair x1.5 of the original score
 1 minute for analyzing the fire location
 2 minutes for the game.
 
+### Main Pathfinding Algorithm Problem
+#### Input
+3x5 matrix containing the position of the flames in the grid.
+#### Output
+Instruction for the robot to find the best path to put all 8 flames into pairs
+in the high lookout, so it can achieve the maximum score.
+#### Note
+- The grid where the robot can move is in a 5x5 grid, while the flames are only
+  set to only appear in the 2nd, 3rd, and 4th row.
+- Robot starts at coordinate (0, 2) facing downwards.
+- High lookout can store up to 4 flames, while low lookout can only store 3 (The
+flame width is 70mm, and high lookout width is 400mm, low lookout 300mm)
+- The robot will automatically take the ore when moving to the position where
+the ore is located
+- Set of instructions that the robot can do:
+    - Move [direction]: Move to [direction] relative to current position, the
+direction can either be up, down, left, right
+    - MoveHalf [left | right]: Move half grid, only applicable on the lowest row
+      (where the wall is)
+    - Put [index]: Put the ore on the lookout nearest to the robot (albeit low
+    or high) and put it on the position based on the index
+    For high lookout: between 0 and 4
+    For low lookout: between 0 and 3
+    
+    For now that's the instructions that the robot can take. It will be extended
+    when needed.
+
 ## Robot Specification
 Since this is only a simulation, we will have an estimate for the robot speed,
 for now we are assuming the robot have these benchmarks:
