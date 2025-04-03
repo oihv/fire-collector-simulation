@@ -1,4 +1,19 @@
-class Robot extends MainObj {
+import p5 from 'p5'
+
+export class Robot extends MainObj {
+  size: number;
+  speed: number;
+  speedX: number;
+  speedY: number;
+  targetX: number;
+  targetY: number;
+  idle: boolean;
+  vertex: number[][];
+  x!: number;
+  y!: number;
+  gridX!: number;
+  gridY!: number;
+
   constructor() {
     super();
     this.size = 60;
@@ -16,7 +31,7 @@ class Robot extends MainObj {
   }
 
   // Update the direction
-  dir(newSpeedX, newSpeedY) {
+  dir(newSpeedX: number, newSpeedY: number) {
     if (this.idle === false) return;
     if (this.isOutConstraint(newSpeedX, newSpeedY)) return;
     this.speedX = newSpeedX;
@@ -25,7 +40,7 @@ class Robot extends MainObj {
     this. idle = false;
   }
 
-  isOutConstraint(newSpeedX, newSpeedY) {
+  isOutConstraint(newSpeedX: number, newSpeedY: number) {
     let newGridX = this.gridX + newSpeedX;
     let newGridY = this.gridY + newSpeedY;
     if (newGridX > 5 || newGridX < 1) return true; 
@@ -106,10 +121,17 @@ class Robot extends MainObj {
     else return false;
   }
 
-  show() {
+  show(p: p5) {
     this.updateVertex();
-    noStroke();
-    fill('#778DA9');
-    triangle(this.vertex[0][0], this.vertex[0][1], this.vertex[1][0], this.vertex[1][1], this.vertex[2][0], this.vertex[2][1]);
+    p.noStroke();
+    p.fill('#778DA9');
+    p.triangle(
+      this.vertex[0][0],
+      this.vertex[0][1],
+      this.vertex[1][0],
+      this.vertex[1][1],
+      this.vertex[2][0],
+      this.vertex[2][1]
+    );
   }
 };
