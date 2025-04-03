@@ -1,5 +1,6 @@
 {
-  "dependencies": {
+  "devDependencies": {
+    "@types/p5": "^1.7.6",
     "p5": "^1.11.3"
   }
 }

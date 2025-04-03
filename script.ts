@@ -1,7 +1,6 @@
 const isLocal = window.location.hostname === "localhost";
 
 const script = document.createElement('script');
-script.language = "javascript"
 script.type = "text/javascript"
 script.src = isLocal
   ? "node_modules/p5/lib/p5.js"
