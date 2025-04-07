@@ -1,4 +1,6 @@
 import p5 from 'p5'
+import { wallWidth, horizontalLineGap, verticalLineGap } from './sketch.js'; 
+import { MainObj } from './Object.js';
 
 export class Robot extends MainObj {
   size: number;

@@ -1,6 +1,8 @@
 const isLocal = window.location.hostname === "localhost";
 
 const script = document.createElement('script');
+// script.language = "javascript" // BUG: error somehow, but is it necessary
+// anyway?
 script.type = "text/javascript"
 script.src = isLocal
   ? "node_modules/p5/lib/p5.js"
