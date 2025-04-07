@@ -1,6 +1,7 @@
 import p5 from 'p5'
-import { Robot } from './Robot.js'
-import { Fire, randomizeFireLocation } from './Fire.js'
+import { Robot } from './Robot.js';
+import { Map } from './map.js';
+import { Fire, initFire } from './Fire.js'
 
 const canvasWidth: number = 1575; // Scale 1:2.67
 const canvasHeight: number = 1200;
@@ -11,23 +12,24 @@ const highLookoutWidth: number = 150;
 const startWidth: number = 225;
 var bot: Robot;
 export var fireArr: Fire[] = [];
+export var map: Map;
 
-const s = ( p: p5 ) => {
-
+const s = (p: p5) => {
   p.setup = () => {
     p.createCanvas(canvasWidth, canvasHeight);
 
     p.angleMode(p.DEGREES);
 
     bot = new Robot();
-    randomizeFireLocation(); 
+    map = new Map();
+    map.populateFire();
+    initFire();
   };
 
   p.draw = () => {
     drawArena(p);
     bot.update();
     bot.show(p);
-
     for (const fire of fireArr) {
       fire.show(p);
     }
