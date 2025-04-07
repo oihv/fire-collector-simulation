@@ -3,10 +3,6 @@ import { fireArr  } from './sketch.js';
 import { MainObj } from './Object.js';
 
 export class Fire extends MainObj {
-  gridX!: number; // Initialized by parent constructor
-  gridY!: number; // Initialized by parent constructor
-  x!: number; // Initialized by parent constructor
-  y!: number; // Initialized by parent constructor
   color: string;
   size: number;
   constructor(gridX: number, gridY: number, color: string) {

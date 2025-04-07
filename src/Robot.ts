@@ -11,10 +11,6 @@ export class Robot extends MainObj {
   targetY: number;
   idle: boolean;
   vertex: number[][];
-  x!: number;
-  y!: number;
-  gridX!: number;
-  gridY!: number;
 
   constructor() {
     super();
