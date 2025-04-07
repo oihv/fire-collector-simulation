@@ -1,6 +1,16 @@
 {
   "devDependencies": {
     "@types/p5": "^1.7.6",
-    "p5": "^1.11.3"
+    "p5": "^1.11.3",
+    "vite": "^6.2.5"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "commonjs": "^0.0.1",
+    "typescript": "^5.8.2"
   }
 }
