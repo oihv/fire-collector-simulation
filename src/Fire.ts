@@ -1,35 +1,50 @@
 import p5 from 'p5'
 import { fireArr  } from './sketch.js';
 import { MainObj } from './Object.js';
+import { map } from './sketch.js';
+
+export enum FlameColor {
+  Empty,
+  Blue, 
+  Red
+}
 
 export class Fire extends MainObj {
-  color: string;
-  size: number;
-  constructor(gridX: number, gridY: number, color: string) {
+  private color: FlameColor;
+  private size: number;
+  #isTook: boolean;
+
+  constructor(gridX: number, gridY: number, color: FlameColor) {
     super(gridX, gridY);
-    this.color = color;
-    this.size = 30;
+    this.color = color; // 1 for blue, 2 for red
+    this.size = 45;
+    this.#isTook = false;
   }
 
-  show(p: p5) {
-    p.fill(this.color);
-    p.circle(this.x, this.y, this.size);
+  public getXY(): number[] {
+    return Array(this.gridX, this.gridY);
+  }
+
+  public set isTook(value: boolean){
+    this.#isTook = value;
+  }
+
+  public show(p: p5): void {
+    if (!this.isTook) {
+      let colorStr: string = this.color == FlameColor.Blue ? "#A2D2FF" : "#C1121F";
+      p.fill(colorStr);
+      p.circle(this.x, this.y, this.size);
+    }
   }
 }
 
-export function randomizeFireLocation() {
-  for (var i = 0; i < 4 ; i++) {
-    const fire = new Fire(Math.floor(Math.random() * 5 + 1), Math.floor(Math.random() * 3 + 1), '#a2d2ff');
-    fireArr.push(fire);
-    console.log(`Fire created at (${fire.x}, ${fire.y})`);
-  }
-  for (var i = 0; i < 4 ; i++) {
-    fireArr.push(new Fire(Math.floor(Math.random() * 5 + 1), Math.floor(Math.random() * 3 + 1), '#c1121f'));
-  }
-}
-
-function setFireLocation() {
-  for (var i = 0; i < 4; i++) {
-    
+export function initFire() {
+  for (let i = 0; i < 5 ; i++) {
+    for (let j = 1; j < 4 ; j++) {
+      if (map.getVal(i, j) != FlameColor.Empty) {
+        const fire = new Fire(i, j, map.getVal(i, j)); // Add 1 for x coordinate because of alignment at drawing
+        fireArr.push(fire);
+      }
+    }
   }
 }
