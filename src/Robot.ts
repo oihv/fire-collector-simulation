@@ -1,16 +1,21 @@
 import p5 from 'p5'
 import { wallWidth, horizontalLineGap, verticalLineGap } from './sketch.js'; 
 import { MainObj } from './Object.js';
+import { map } from './sketch.js';
+import { fireArr } from './sketch.js';
 
 export class Robot extends MainObj {
-  size: number;
-  speed: number;
-  speedX: number;
-  speedY: number;
-  targetX: number;
-  targetY: number;
-  idle: boolean;
-  vertex: number[][];
+  private size: number;
+  private speed: number;
+  private speedX: number;
+  private speedY: number;
+  private targetX: number;
+  private targetY: number;
+  private idle: boolean;
+  private isTakingFire: boolean;
+  private vertex: number[][];
+  private static readonly maxFireStorage: number = 4;
+  private curFireStorage: number;
 
   constructor() {
     super();
@@ -22,7 +27,10 @@ export class Robot extends MainObj {
     this.targetX = 0;
     this.targetY = 0;
 
+    this.curFireStorage = 0;
+
     this.idle = true;
+    this.isTakingFire = true;
     this.vertex = [[this.x - this.size / 2, this.y - this.size / 2],
     [this.x, this.y + this.size / 2],
     [this.x + this.size / 2, this.y - this.size / 2]];
@@ -31,25 +39,27 @@ export class Robot extends MainObj {
   // Update the direction
   dir(newSpeedX: number, newSpeedY: number) {
     if (this.idle === false) return;
-    if (this.isOutConstraint(newSpeedX, newSpeedY)) return;
-    this.speedX = newSpeedX;
-    this.speedY = newSpeedY;
-    this.updateGrid();
-    this. idle = false;
-  }
 
-  isOutConstraint(newSpeedX: number, newSpeedY: number) {
     let newGridX = this.gridX + newSpeedX;
     let newGridY = this.gridY + newSpeedY;
-    if (newGridX > 5 || newGridX < 1) return true; 
+    if (this.isOutConstraint(newGridX, newGridY)) return;
+    if (this.checkCollisionFire(newGridX, newGridY)) return;
+    this.speedX = newSpeedX;
+    this.speedY = newSpeedY;
+    this.updateGrid(newGridX, newGridY);
+    this.idle = false;
+  }
+
+  isOutConstraint(newGridX: number, newGridY: number) {
+    if (newGridX > 4 || newGridX < 0) return true; 
     if (newGridY > 4 || newGridY < 0) return true; 
     return false;
   }
 
-  updateGrid() {
-    this.gridX += this.speedX;
-    this.gridY += this.speedY;
-    this.targetX = wallWidth + this.gridX * horizontalLineGap;
+  private updateGrid(newGridX: number, newGridY: number): void{
+    this.gridX = newGridX;
+    this.gridY = newGridY;
+    this.targetX = wallWidth + (this.gridX + 1) * horizontalLineGap; // +1 for offset
     this.targetY = wallWidth + this.gridY * verticalLineGap;
     if (this.gridY === 4) this.targetY -= 30;
   }
@@ -102,6 +112,7 @@ export class Robot extends MainObj {
   update() {
     if (this.checkArriveTarget()) {
       this.idle = true;
+      if (this.isTakingFire) this.collectFire;
       this.realignPosition();
       this.stop();
       this.updateVertex();
@@ -119,7 +130,33 @@ export class Robot extends MainObj {
     else return false;
   }
 
-  show(p: p5) {
+  private checkCollisionFire(newGridX: number, newGridY: number): boolean {
+    if(map.getVal(newGridX, newGridY) != 0) { // If the next target grid have a flame
+      if (this.curFireStorage == Robot.maxFireStorage) return true; // If the capacity is full
+      else {
+        this.isTakingFire = true; // Take fire when arrived
+        return false;
+      }
+    }
+    return false;
+  }
+
+  private collectFire() {
+    this.curFireStorage += 1;
+
+    // TODO: think of a better way of finding the fire located in the coordinate
+    // Find the fire correlated to this position, and then set it as took
+    for (const fire of fireArr) {
+      let x: number, y: number;
+      [x, y] = fire.getXY();
+      if (this.gridX === x && this.gridY === y) {
+        fire.isTook = true;
+        break;
+      }
+    }
+  }
+
+  public show(p: p5) {
     this.updateVertex();
     p.noStroke();
     p.fill('#778DA9');
