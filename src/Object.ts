@@ -5,10 +5,10 @@ export class MainObj {
   x: number;
   y: number;
 
-constructor(gridX=3, gridY=0) {
+constructor(gridX=2, gridY=0) {
     this.gridX = gridX; // starts from 1, end in 5
     this.gridY = gridY; // starts from 0, end in 4
-    this.x = wallWidth + gridX * horizontalLineGap;
+    this.x = wallWidth + (gridX + 1) * horizontalLineGap; // Offset
     this.y = wallWidth + gridY * verticalLineGap;
   }
 }
