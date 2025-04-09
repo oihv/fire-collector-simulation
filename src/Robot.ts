@@ -153,7 +153,7 @@ export class Robot extends MainObj {
       let x: number, y: number;
       [x, y] = fire.getXY();
       if (this.gridX === x && this.gridY === y) {
-        fire.isTook = true;
+        fire.isCollected = true;
         incrementAllStackIndex();
         fire.stackIndex = 0; // Start at 0
         map.setVal(x, y, FlameColor.Empty);
