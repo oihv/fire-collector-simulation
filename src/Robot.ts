@@ -1,8 +1,9 @@
 import p5 from 'p5'
-import { wallWidth, horizontalLineGap, verticalLineGap } from './sketch.js'; 
+import { wallWidth, horizontalLineGap, verticalLineGap } from './sketch.js';
 import { MainObj } from './Object.js';
 import { map } from './sketch.js';
 import { fireArr } from './sketch.js';
+import { FlameColor, incrementAllStackIndex } from './Fire.js';
 
 export class Robot extends MainObj {
   private size: number;
@@ -30,7 +31,7 @@ export class Robot extends MainObj {
     this.curFireStorage = 0;
 
     this.idle = true;
-    this.isTakingFire = true;
+    this.isTakingFire = false;
     this.vertex = [[this.x - this.size / 2, this.y - this.size / 2],
     [this.x, this.y + this.size / 2],
     [this.x + this.size / 2, this.y - this.size / 2]];
@@ -51,12 +52,12 @@ export class Robot extends MainObj {
   }
 
   isOutConstraint(newGridX: number, newGridY: number) {
-    if (newGridX > 4 || newGridX < 0) return true; 
-    if (newGridY > 4 || newGridY < 0) return true; 
+    if (newGridX > 4 || newGridX < 0) return true;
+    if (newGridY > 4 || newGridY < 0) return true;
     return false;
   }
 
-  private updateGrid(newGridX: number, newGridY: number): void{
+  private updateGrid(newGridX: number, newGridY: number): void {
     this.gridX = newGridX;
     this.gridY = newGridY;
     this.targetX = wallWidth + (this.gridX + 1) * horizontalLineGap; // +1 for offset
@@ -112,7 +113,8 @@ export class Robot extends MainObj {
   update() {
     if (this.checkArriveTarget()) {
       this.idle = true;
-      if (this.isTakingFire) this.collectFire;
+      if (this.isTakingFire)
+        this.collectFire();
       this.realignPosition();
       this.stop();
       this.updateVertex();
@@ -131,8 +133,9 @@ export class Robot extends MainObj {
   }
 
   private checkCollisionFire(newGridX: number, newGridY: number): boolean {
-    if(map.getVal(newGridX, newGridY) != 0) { // If the next target grid have a flame
-      if (this.curFireStorage == Robot.maxFireStorage) return true; // If the capacity is full
+    if (map.getVal(newGridX, newGridY) != FlameColor.Empty) { // If the next target grid have a flame
+      if (this.curFireStorage >= Robot.maxFireStorage)
+        return true; // If the capacity is full
       else {
         this.isTakingFire = true; // Take fire when arrived
         return false;
@@ -142,7 +145,7 @@ export class Robot extends MainObj {
   }
 
   private collectFire() {
-    this.curFireStorage += 1;
+    this.isTakingFire = false;
 
     // TODO: think of a better way of finding the fire located in the coordinate
     // Find the fire correlated to this position, and then set it as took
@@ -151,9 +154,18 @@ export class Robot extends MainObj {
       [x, y] = fire.getXY();
       if (this.gridX === x && this.gridY === y) {
         fire.isTook = true;
+        incrementAllStackIndex();
+        fire.stackIndex = 0; // Start at 0
+        map.setVal(x, y, FlameColor.Empty);
         break;
       }
     }
+    console.log("Add")
+    this.curFireStorage += 1;
+  }
+
+  public getXY(): number[] {
+    return Array(this.x, this.y);
   }
 
   public show(p: p5) {

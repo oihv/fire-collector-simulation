@@ -38,4 +38,8 @@ export class Map {
   public getVal(x: number, y: number): FlameColor{
     return this.coordinate[x][y]; // Offset from gridX, and gridY
   }
+
+  public setVal(x: number, y: number, val: FlameColor): void{
+    this.coordinate[x][y] = val; // Offset from gridX, and gridY
+  }
 }

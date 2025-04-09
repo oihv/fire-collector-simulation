@@ -10,7 +10,7 @@ export const verticalLineGap: number = 281;
 export const horizontalLineGap: number = 250;
 const highLookoutWidth: number = 150;
 const startWidth: number = 225;
-var bot: Robot;
+export var bot: Robot;
 export var fireArr: Fire[] = [];
 export var map: Map;
 
