@@ -5,6 +5,13 @@ import { map } from './sketch.js';
 import { fireArr } from './sketch.js';
 import { FlameColor, incrementAllStackIndex } from './Fire.js';
 
+enum BotOrientation {
+  Right,
+  Bottom,
+  Left,
+  Top
+}
+
 export class Robot extends MainObj {
   private size: number;
   private speed: number;
@@ -12,6 +19,7 @@ export class Robot extends MainObj {
   private speedY: number;
   private targetX: number;
   private targetY: number;
+  private orientation: BotOrientation;
   private idle: boolean;
   private isTakingFire: boolean;
   private vertex: number[][];
@@ -30,6 +38,7 @@ export class Robot extends MainObj {
 
     this.curFireStorage = 0;
 
+    this.orientation = BotOrientation.Bottom;
     this.idle = true;
     this.isTakingFire = false;
     this.vertex = [[this.x - this.size / 2, this.y - this.size / 2],
@@ -47,8 +56,16 @@ export class Robot extends MainObj {
     if (this.checkCollisionFire(newGridX, newGridY)) return;
     this.speedX = newSpeedX;
     this.speedY = newSpeedY;
+    this.updateOrientation();
     this.updateGrid(newGridX, newGridY);
     this.idle = false;
+  }
+
+  private updateOrientation(): void {
+    if (this.speedX === 1) this.orientation = BotOrientation.Right;
+    else if (this.speedY === -1) this.orientation = BotOrientation.Bottom;
+    else if (this.speedX === -1) this.orientation = BotOrientation.Left;
+    else if (this.speedY === 1) this.orientation = BotOrientation.Top;
   }
 
   isOutConstraint(newGridX: number, newGridY: number) {
@@ -65,38 +82,41 @@ export class Robot extends MainObj {
     if (this.gridY === 4) this.targetY -= 30;
   }
 
+  // Update the orientation of the triangle
   updateVertex() {
-    if (this.speedX === 1) {
-      this.vertex[0][0] = this.x - this.size / 2;
-      this.vertex[0][1] = this.y + this.size / 2;
-      this.vertex[1][0] = this.x - this.size / 2;
-      this.vertex[1][1] = this.y - this.size / 2;
-      this.vertex[2][0] = this.x + this.size / 2;
-      this.vertex[2][1] = this.y;
-    }
-    else if (this.speedX === -1) {
-      this.vertex[0][0] = this.x + this.size / 2;
-      this.vertex[0][1] = this.y + this.size / 2;
-      this.vertex[1][0] = this.x + this.size / 2;
-      this.vertex[1][1] = this.y - this.size / 2;
-      this.vertex[2][0] = this.x - this.size / 2;
-      this.vertex[2][1] = this.y;
-    }
-    else if (this.speedY === -1) {
-      this.vertex[0][0] = this.x - this.size / 2;
-      this.vertex[0][1] = this.y + this.size / 2;
-      this.vertex[1][0] = this.x + this.size / 2;
-      this.vertex[1][1] = this.y + this.size / 2;
-      this.vertex[2][0] = this.x;
-      this.vertex[2][1] = this.y - this.size / 2;
-    }
-    else if (this.speedY === 1) {
-      this.vertex[0][0] = this.x - this.size / 2;
-      this.vertex[0][1] = this.y - this.size / 2;
-      this.vertex[1][0] = this.x + this.size / 2;
-      this.vertex[1][1] = this.y - this.size / 2;
-      this.vertex[2][0] = this.x;
-      this.vertex[2][1] = this.y + this.size / 2;
+    switch (this.orientation) {
+      case BotOrientation.Right:
+        this.vertex[0][0] = this.x - this.size / 2;
+        this.vertex[0][1] = this.y + this.size / 2;
+        this.vertex[1][0] = this.x - this.size / 2;
+        this.vertex[1][1] = this.y - this.size / 2;
+        this.vertex[2][0] = this.x + this.size / 2;
+        this.vertex[2][1] = this.y;
+        break;
+      case BotOrientation.Bottom:
+        this.vertex[0][0] = this.x - this.size / 2;
+        this.vertex[0][1] = this.y + this.size / 2;
+        this.vertex[1][0] = this.x + this.size / 2;
+        this.vertex[1][1] = this.y + this.size / 2;
+        this.vertex[2][0] = this.x;
+        this.vertex[2][1] = this.y - this.size / 2;
+        break;
+      case BotOrientation.Left:
+        this.vertex[0][0] = this.x + this.size / 2;
+        this.vertex[0][1] = this.y + this.size / 2;
+        this.vertex[1][0] = this.x + this.size / 2;
+        this.vertex[1][1] = this.y - this.size / 2;
+        this.vertex[2][0] = this.x - this.size / 2;
+        this.vertex[2][1] = this.y;
+        break;
+      case BotOrientation.Top:
+        this.vertex[0][0] = this.x - this.size / 2;
+        this.vertex[0][1] = this.y - this.size / 2;
+        this.vertex[1][0] = this.x + this.size / 2;
+        this.vertex[1][1] = this.y - this.size / 2;
+        this.vertex[2][0] = this.x;
+        this.vertex[2][1] = this.y + this.size / 2;
+        break;
     }
   }
 
@@ -117,7 +137,6 @@ export class Robot extends MainObj {
         this.collectFire();
       this.realignPosition();
       this.stop();
-      this.updateVertex();
       return;
     }
     this.x += this.speedX * this.speed;
@@ -162,6 +181,11 @@ export class Robot extends MainObj {
     }
     console.log("Add")
     this.curFireStorage += 1;
+  }
+
+  // TODO: Implement put fire mechanism
+  private putFire() {
+
   }
 
   public getXY(): number[] {
