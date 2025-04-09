@@ -76,7 +76,7 @@ function drawArena(p: p5) {
 
 const canvasElement = document.getElementById('canvas');
 if (canvasElement) {
-  let myp5: p5 = new p5(s, canvasElement);
+  new p5(s, canvasElement);
 } else {
   console.error("Canvas element with ID 'canvas' not found.");
 }
