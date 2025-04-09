@@ -8,7 +8,7 @@ const canvasHeight: number = 1200;
 export const wallWidth: number = 37.45;
 export const verticalLineGap: number = 281;
 export const horizontalLineGap: number = 250;
-const highLookoutWidth: number = 150;
+export const highLookoutWidth: number = 150;
 const startWidth: number = 225;
 export var bot: Robot;
 export var fireArr: Fire[] = [];
@@ -30,23 +30,51 @@ const s = (p: p5) => {
     drawArena(p);
     bot.update();
     bot.show(p);
-    for (const fire of fireArr) {
+    for (const fire of fireArr) { // Draw fire
       fire.show(p);
     }
+    map.showLookout(p);
   };
 
   p.keyPressed = () => {
-    if (p.keyCode === 65) { // a 
-      bot.dir(-1, 0);
-    }
-    else if (p.keyCode === 68) { // d
-      bot.dir(1, 0);
-    }
-    else if (p.keyCode === 87) { // w
-      bot.dir(0, -1);
-    }
-    else if (p.keyCode === 83) { // s
-      bot.dir(0, 1);
+    console.log(p.keyCode)
+    switch (p.keyCode) {
+      case 65: // a 
+        bot.dir(-1, 0);
+        break;
+      case 68: // d
+        bot.dir(1, 0);
+        break;
+      case 87: // w
+        bot.dir(0, -1);
+        break;
+      case 83: // s
+        bot.dir(0, 1);
+        break;
+      case 48: // 0
+        bot.checkLookoutCollision(0);
+        break;
+      case 49: // 1
+        bot.checkLookoutCollision(1);
+        break;
+      case 50: // 2
+        bot.checkLookoutCollision(2);
+        break;
+      case 51: // 3
+        bot.checkLookoutCollision(3);
+        break;
+      case 37: // left
+        bot.checkLookoutCollision(3);
+        break;
+      case 38: // up
+        bot.checkLookoutCollision(3);
+        break;
+      case 39: // right
+        bot.checkLookoutCollision(3);
+        break;
+      case 40: // bottom
+        bot.checkLookoutCollision(3);
+        break;
     }
   };
 };

@@ -3,7 +3,7 @@ import { wallWidth, horizontalLineGap, verticalLineGap } from './sketch.js';
 import { MainObj } from './Object.js';
 import { map } from './sketch.js';
 import { fireArr } from './sketch.js';
-import { FlameColor, incrementAllStackIndex } from './Fire.js';
+import { Fire, FlameColor } from './Fire.js';
 
 enum BotOrientation {
   Right,
@@ -63,9 +63,9 @@ export class Robot extends MainObj {
 
   private updateOrientation(): void {
     if (this.speedX === 1) this.orientation = BotOrientation.Right;
-    else if (this.speedY === -1) this.orientation = BotOrientation.Bottom;
+    else if (this.speedY === -1) this.orientation = BotOrientation.Top;
     else if (this.speedX === -1) this.orientation = BotOrientation.Left;
-    else if (this.speedY === 1) this.orientation = BotOrientation.Top;
+    else if (this.speedY === 1) this.orientation = BotOrientation.Bottom;
   }
 
   isOutConstraint(newGridX: number, newGridY: number) {
@@ -95,11 +95,11 @@ export class Robot extends MainObj {
         break;
       case BotOrientation.Bottom:
         this.vertex[0][0] = this.x - this.size / 2;
-        this.vertex[0][1] = this.y + this.size / 2;
+        this.vertex[0][1] = this.y - this.size / 2;
         this.vertex[1][0] = this.x + this.size / 2;
-        this.vertex[1][1] = this.y + this.size / 2;
+        this.vertex[1][1] = this.y - this.size / 2;
         this.vertex[2][0] = this.x;
-        this.vertex[2][1] = this.y - this.size / 2;
+        this.vertex[2][1] = this.y + this.size / 2;
         break;
       case BotOrientation.Left:
         this.vertex[0][0] = this.x + this.size / 2;
@@ -111,26 +111,26 @@ export class Robot extends MainObj {
         break;
       case BotOrientation.Top:
         this.vertex[0][0] = this.x - this.size / 2;
-        this.vertex[0][1] = this.y - this.size / 2;
+        this.vertex[0][1] = this.y + this.size / 2;
         this.vertex[1][0] = this.x + this.size / 2;
-        this.vertex[1][1] = this.y - this.size / 2;
+        this.vertex[1][1] = this.y + this.size / 2;
         this.vertex[2][0] = this.x;
-        this.vertex[2][1] = this.y + this.size / 2;
+        this.vertex[2][1] = this.y - this.size / 2;
         break;
     }
   }
 
-  stop() {
+  public stop(): void {
     this.speedX = 0;
     this.speedY = 0;
   }
 
-  realignPosition() {
+  public realignPosition(): void {
     this.x = this.targetX;
     this.y = this.targetY;
   }
 
-  update() {
+  public update(): void {
     if (this.checkArriveTarget()) {
       this.idle = true;
       if (this.isTakingFire)
@@ -143,7 +143,7 @@ export class Robot extends MainObj {
     this.y += this.speedY * this.speed;
   }
 
-  checkArriveTarget() {
+  public checkArriveTarget(): boolean {
     if (this.speedX === 1 && this.x + this.size / 2 >= this.targetX) return true;
     else if (this.speedX === -1 && this.x - this.size / 2 <= this.targetX) return true;
     else if (this.speedY === -1 && this.y - this.size / 2 <= this.targetY) return true;
@@ -173,23 +173,38 @@ export class Robot extends MainObj {
       [x, y] = fire.getXY();
       if (this.gridX === x && this.gridY === y) {
         fire.isCollected = true;
-        incrementAllStackIndex();
-        fire.stackIndex = 0; // Start at 0
+        Fire.pushTookStack(fire);
         map.setVal(x, y, FlameColor.Empty);
         break;
       }
     }
-    console.log("Add")
-    this.curFireStorage += 1;
+    this.curFireStorage++;
   }
 
   // TODO: Implement put fire mechanism
-  private putFire() {
+  private putFire(index: number): void {
+    let putFlame: Fire = Fire.popTookStack();
+    putFlame.isPut = true; // Set the flag to true
+    map.setHighLookout(this.gridX, index, putFlame.color); // Set the color of the lookout in this position
+    this.curFireStorage--;
+    console.log(`Flame has been put on lookout: ${this.gridX}, index: ${index}`)
+    console.log(Fire.getTookStackSize())
+  }
 
+  public checkLookoutCollision(index: number): void {
+    console.assert(this.gridY === 4, "Bot is not on the most bottom row.");
+    console.assert(this.orientation === BotOrientation.Bottom, "Bot is not facing the bottom.");
+    console.assert(map.getHighLookout(this.gridX, index) === FlameColor.Empty, "High lookout is not empty");
+
+    this.putFire(index);
   }
 
   public getXY(): number[] {
     return Array(this.x, this.y);
+  }
+
+  public getGridXY(): number[] {
+    return Array(this.gridX, this.gridY);
   }
 
   public show(p: p5) {
