@@ -5,7 +5,7 @@ collection contest.
 ## Features
 - [ ] Benchmarks for each simulation
     including time, moves made, total score
-- [ ] Manual mode
+- [x] Manual mode
 - [ ] Speed control (x1, x2, etc)
 
 ## Purpose
@@ -66,13 +66,17 @@ flame width is 70mm, and high lookout width is 400mm, low lookout 300mm)
 the ore is located
 - Set of instructions that the robot can do:
     - Move [direction]: Move to [direction] relative to current position, the
-direction can either be up, down, left, right
-    - MoveHalf [left | right]: Move half grid, only applicable on the lowest row
-      (where the wall is)
-    - Put [index]: Put the ore on the lookout nearest to the robot (albeit low
-    or high) and put it on the position based on the index
+    direction can either be up, down, left, right, as the robot will be using
+    mechanum wheel and can move horizontally too.
+    - Rotate [left | right | back]: Rotate to [direction] relative to current orientation.
+    - Put [index]: Put the ore on the lookout in front of the robot (albeit low
+    or high) and put it on the position based on the index.
     For high lookout: between 0 and 4
     For low lookout: between 0 and 3
+    Do note that the robot needs to be facing the lookout before proceeding to
+    put the flame
+    - MoveHalf [left | right]: Move half grid, only applicable on the lowest row
+    (where the wall is)
     
     For now that's the instructions that the robot can take. It will be extended
     when needed.
@@ -90,3 +94,11 @@ for now we are assuming the robot have these benchmarks:
     - For high lookout
     - For low lookout
 - Store fire
+
+## Todo
+- [x] Implement taking flame
+- [ ] Implement placing flame
+- [ ] Interface C through wasm
+- [ ] Write tests
+- [ ] Show benchmark analysis
+- [ ] 
