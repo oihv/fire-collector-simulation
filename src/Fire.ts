@@ -57,7 +57,7 @@ export function initFire() {
   for (let i = 0; i < 5 ; i++) {
     for (let j = 1; j < 4 ; j++) {
       if (map.getVal(i, j) != FlameColor.Empty) {
-        const fire = new Fire(i, j, map.getVal(i, j)); // Add 1 for x coordinate because of alignment at drawing
+        const fire = new Fire(i, j, map.getVal(i, j));
         fireArr.push(fire);
       }
     }
