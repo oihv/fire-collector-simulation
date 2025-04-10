@@ -28,6 +28,7 @@ export const initWasm = async (): Promise<void> => {
       return;
     }
 
+    // TODO: sometimes malloc get called before initialization is completed
     pathFind = Module.cwrap("pathFind", "number", ["number"]);
     resolve();
   });
