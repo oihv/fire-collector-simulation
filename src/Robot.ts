@@ -194,12 +194,10 @@ export class Robot extends MainObj {
       if (botMoves[this.#instructionIndex] === BotInstruction.stop) {
         this.#instructionIndex = 0; // reset the instruction index
         this.#halt = true;
-        console.log("ud berenti")
         return;
       }
       this.executeMove(botMoves[this.#instructionIndex]);
       this.#instructionIndex++;
-      console.log("jalan boss")
     }
   }
 
@@ -226,7 +224,7 @@ export class Robot extends MainObj {
       case BotInstruction.rotb:
         let orientateTo: BotOrientation;
         this.orientation === BotOrientation.Bottom ? orientateTo = BotOrientation.Top : orientateTo = BotOrientation.Bottom;
-        this.rotate(BotOrientation.Bottom);
+        this.rotate(orientateTo);
         break;
       case BotInstruction.take:
         // For now, only move forward and take the ore there

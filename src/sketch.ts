@@ -1,5 +1,5 @@
 import p5 from 'p5'
-import { Robot, BotOrientation, BotInstruction } from './Robot.js';
+import { Robot, BotOrientation } from './Robot.js';
 import { Map } from './map.js';
 import { Fire, initFire } from './Fire.js'
 import { initWasm } from './script.js';
