@@ -4,12 +4,29 @@ import { MainObj } from './Object.js';
 import { map } from './sketch.js';
 import { fireArr } from './sketch.js';
 import { Fire, FlameColor } from './Fire.js';
+import { botMoves } from './Simulation.js';
 
-enum BotOrientation {
+export enum BotOrientation {
   Right,
   Bottom,
   Left,
   Top
+}
+
+export enum BotInstruction {
+  movr = 0,
+  movb = 1,
+  movl = 2,
+  movt = 3,
+  rotl = 4,
+  rotr = 5,
+  rotb = 6,
+  take = 7,
+  puth0 = 8,
+  puth1 = 9,
+  puth2 = 10,
+  puth3 = 11,
+  stop = 12,
 }
 
 export class Robot extends MainObj {
@@ -21,10 +38,12 @@ export class Robot extends MainObj {
   private targetY: number;
   private orientation: BotOrientation;
   private idle: boolean;
+  #halt: boolean;
   private isTakingFire: boolean;
   private vertex: number[][];
   private static readonly maxFireStorage: number = 4;
   private curFireStorage: number;
+  #instructionIndex: number;
 
   constructor() {
     super();
@@ -37,9 +56,11 @@ export class Robot extends MainObj {
     this.targetY = 0;
 
     this.curFireStorage = 0;
+    this.#instructionIndex = 0;
 
     this.orientation = BotOrientation.Bottom;
     this.idle = true;
+    this.#halt = false;
     this.isTakingFire = false;
     this.vertex = [[this.x - this.size / 2, this.y - this.size / 2],
     [this.x, this.y + this.size / 2],
@@ -61,11 +82,32 @@ export class Robot extends MainObj {
     this.idle = false;
   }
 
+  private moveForward(): void {
+    switch(this.orientation) {
+      case BotOrientation.Right:
+        this.executeMove(BotInstruction.movr);
+        break;
+      case BotOrientation.Bottom:
+        this.executeMove(BotInstruction.movb);
+        break;
+      case BotOrientation.Left:
+        this.executeMove(BotInstruction.movl);
+        break;
+      case BotOrientation.Top:
+        this.executeMove(BotInstruction.movt);
+        break;
+    }
+  }
+
   private updateOrientation(): void {
     if (this.speedX === 1) this.orientation = BotOrientation.Right;
     else if (this.speedY === -1) this.orientation = BotOrientation.Top;
     else if (this.speedX === -1) this.orientation = BotOrientation.Left;
     else if (this.speedY === 1) this.orientation = BotOrientation.Bottom;
+  }
+
+  public rotate(dir: BotOrientation): void {
+    this.orientation = dir;
   }
 
   isOutConstraint(newGridX: number, newGridY: number) {
@@ -143,6 +185,70 @@ export class Robot extends MainObj {
     this.y += this.speedY * this.speed;
   }
 
+  public get halt(): boolean {
+    return this.#halt;
+  }
+
+  public automateMove(): void {
+    if (this.idle === true) {
+      if (botMoves[this.#instructionIndex] === BotInstruction.stop) {
+        this.#instructionIndex = 0; // reset the instruction index
+        this.#halt = true;
+        console.log("ud berenti")
+        return;
+      }
+      this.executeMove(botMoves[this.#instructionIndex]);
+      this.#instructionIndex++;
+      console.log("jalan boss")
+    }
+  }
+
+  public executeMove(ins: BotInstruction): void {
+    switch (ins) {
+      case BotInstruction.movr:
+        this.dir(1, 0);
+        break;
+      case BotInstruction.movb:
+        this.dir(0, 1);
+        break;
+      case BotInstruction.movl:
+        this.dir(-1, 0);
+        break;
+      case BotInstruction.movt:
+        this.dir(0, -1);
+        break;
+      case BotInstruction.rotl:
+        this.rotate(BotOrientation.Left)
+        break;
+      case BotInstruction.rotr:
+        this.rotate(BotOrientation.Right)
+        break;
+      case BotInstruction.rotb:
+        let orientateTo: BotOrientation;
+        this.orientation === BotOrientation.Bottom ? orientateTo = BotOrientation.Top : orientateTo = BotOrientation.Bottom;
+        this.rotate(BotOrientation.Bottom);
+        break;
+      case BotInstruction.take:
+        // For now, only move forward and take the ore there
+        this.moveForward();
+        break;
+      case BotInstruction.puth0:
+        this.checkLookoutCollision(0);
+        break;
+      case BotInstruction.puth1:
+        this.checkLookoutCollision(1);
+        break;
+      case BotInstruction.puth2:
+        this.checkLookoutCollision(2);
+        break;
+      case BotInstruction.puth3:
+        this.checkLookoutCollision(3);
+        break;
+      case BotInstruction.stop:
+        break;
+    }
+  }
+
   public checkArriveTarget(): boolean {
     if (this.speedX === 1 && this.x + this.size / 2 >= this.targetX) return true;
     else if (this.speedX === -1 && this.x - this.size / 2 <= this.targetX) return true;
@@ -187,8 +293,6 @@ export class Robot extends MainObj {
     putFlame.isPut = true; // Set the flag to true
     map.setHighLookout(this.gridX, index, putFlame.color); // Set the color of the lookout in this position
     this.curFireStorage--;
-    console.log(`Flame has been put on lookout: ${this.gridX}, index: ${index}`)
-    console.log(Fire.getTookStackSize())
   }
 
   public checkLookoutCollision(index: number): void {

@@ -40,6 +40,10 @@ export class Map {
     console.log(this.#coordinate);
   }
 
+  public get coordinate(): FlameColor[][] {
+    return this.#coordinate;
+  }
+
   public getVal(x: number, y: number): FlameColor {
     return this.#coordinate[x][y]; // Offset from gridX, and gridY
   }

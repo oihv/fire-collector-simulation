@@ -1,7 +1,9 @@
 import p5 from 'p5'
-import { Robot } from './Robot.js';
+import { Robot, BotOrientation, BotInstruction } from './Robot.js';
 import { Map } from './map.js';
 import { Fire, initFire } from './Fire.js'
+import { initWasm } from './script.js';
+import { simulate } from './Simulation.js'; 
 
 const canvasWidth: number = 1575; // Scale 1:2.67
 const canvasHeight: number = 1200;
@@ -15,7 +17,8 @@ export var fireArr: Fire[] = [];
 export var map: Map;
 
 const s = (p: p5) => {
-  p.setup = () => {
+  p.setup = async () => {
+    await initWasm();
     p.createCanvas(canvasWidth, canvasHeight);
 
     p.angleMode(p.DEGREES);
@@ -24,11 +27,14 @@ const s = (p: p5) => {
     map = new Map();
     map.populateFire();
     initFire();
+
+    simulate();
   };
 
   p.draw = () => {
     drawArena(p);
     bot.update();
+    bot.halt === false ? bot.automateMove() : undefined;
     bot.show(p);
     for (const fire of fireArr) { // Draw fire
       fire.show(p);
@@ -37,7 +43,6 @@ const s = (p: p5) => {
   };
 
   p.keyPressed = () => {
-    console.log(p.keyCode)
     switch (p.keyCode) {
       case 65: // a 
         bot.dir(-1, 0);
@@ -51,6 +56,7 @@ const s = (p: p5) => {
       case 83: // s
         bot.dir(0, 1);
         break;
+
       case 48: // 0
         bot.checkLookoutCollision(0);
         break;
@@ -63,17 +69,18 @@ const s = (p: p5) => {
       case 51: // 3
         bot.checkLookoutCollision(3);
         break;
+
       case 37: // left
-        bot.checkLookoutCollision(3);
+        bot.rotate(BotOrientation.Left)
         break;
       case 38: // up
-        bot.checkLookoutCollision(3);
+        bot.rotate(BotOrientation.Top)
         break;
       case 39: // right
-        bot.checkLookoutCollision(3);
+        bot.rotate(BotOrientation.Right)
         break;
       case 40: // bottom
-        bot.checkLookoutCollision(3);
+        bot.rotate(BotOrientation.Bottom)
         break;
     }
   };

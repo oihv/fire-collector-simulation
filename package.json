@@ -11,6 +11,7 @@
     "deploy" : "gh-pages -d dist",
     "dev": "vite",
     "build": "tsc && vite build",
+    "build:wasm": "emcc wasm/algo.c -s WASM=1 -sEXPORTED_FUNCTIONS=_pathFind,_malloc,_free -sEXPORTED_RUNTIME_METHODS='[\"ccall\", \"cwrap\"]' -o wasm/build/algo.js && cp wasm/build/* public/wasm/",
     "preview": "vite preview"
   },
   "dependencies": {

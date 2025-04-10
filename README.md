@@ -102,3 +102,6 @@ for now we are assuming the robot have these benchmarks:
 - [ ] Write tests
 - [ ] Show benchmark analysis
 - [ ] 
+
+## WASM Emscripten notes
+to output from printf() to console.log() you must put '\n'
