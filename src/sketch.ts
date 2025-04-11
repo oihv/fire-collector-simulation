@@ -111,7 +111,7 @@ function drawArena(p: p5) {
   // start position
   p.noStroke();
   p.fill('#e0e1dd')
-  p.square(p.width / 2 - startWidth / 2, 0, startWidth);
+  p.square(arenaWidth / 2 - startWidth / 2, 0, startWidth);
 }
 
 const canvasElement = document.getElementById('canvas');
