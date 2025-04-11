@@ -5,10 +5,12 @@ import p5 from "p5";
 export class Map {
   #coordinate: FlameColor[][]; // Matrix to store flame position throughout the map
   #highLookout: FlameColor[][]; // Matrix to store availability in high lookout
+  #updated: boolean;
 
   constructor() {
     this.#coordinate = Array.from(Array(5), _ => Array(5).fill(FlameColor.Empty));
     this.#highLookout = Array.from(Array(5), _ => Array(4).fill(FlameColor.Empty))
+    this.#updated = false;
   }
 
   getRandomXY(): number[] {
@@ -44,6 +46,14 @@ export class Map {
     return this.#coordinate;
   }
 
+  public set updated(val: boolean) {
+    this.#updated = val;
+  }
+
+  public get updated(): boolean {
+    return this.#updated;
+  }
+
   public getVal(x: number, y: number): FlameColor {
     return this.#coordinate[x][y]; // Offset from gridX, and gridY
   }
@@ -53,6 +63,7 @@ export class Map {
   }
 
   public setHighLookout(x: number, index: number, color: FlameColor): void {
+    this.#updated = true;
     this.#highLookout[x][index] = color;
   }
 

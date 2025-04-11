@@ -4,8 +4,10 @@ import { Map } from './map.js';
 import { Fire, initFire } from './Fire.js'
 import { initWasm } from './script.js';
 import { simulate } from './Simulation.js'; 
+import { Stats } from './Stats.js';
 
-const canvasWidth: number = 1575; // Scale 1:2.67
+const canvasWidth: number = 1800; // Scale 1:2.67
+export const arenaWidth: number = 1575; // Scale 1:2.67
 const canvasHeight: number = 1200;
 export const wallWidth: number = 37.45;
 export const verticalLineGap: number = 281;
@@ -15,6 +17,7 @@ const startWidth: number = 225;
 export var bot: Robot;
 export var fireArr: Fire[] = [];
 export var map: Map;
+let stats: Stats;
 
 const s = (p: p5) => {
   p.setup = async () => {
@@ -25,6 +28,7 @@ const s = (p: p5) => {
 
     bot = new Robot();
     map = new Map();
+    stats = new Stats();
     map.populateFire();
     initFire();
 
@@ -34,12 +38,13 @@ const s = (p: p5) => {
   p.draw = () => {
     drawArena(p);
     bot.update();
-    bot.halt === false ? bot.automateMove() : undefined;
+    // bot.halt === false ? bot.automateMove() : undefined;
     bot.show(p);
     for (const fire of fireArr) { // Draw fire
       fire.show(p);
     }
     map.showLookout(p);
+    stats.show(p);
   };
 
   p.keyPressed = () => {
@@ -100,7 +105,7 @@ function drawArena(p: p5) {
   }
   // Horizontal lines
   for (var i = 0; i < 5; i++) {
-    p.line(0, wallWidth + (i * verticalLineGap), canvasWidth, wallWidth + (i * verticalLineGap));
+    p.line(0, wallWidth + (i * verticalLineGap), arenaWidth, wallWidth + (i * verticalLineGap));
   }
 
   // start position
