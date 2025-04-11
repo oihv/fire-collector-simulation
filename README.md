@@ -43,7 +43,7 @@ each pair x1.5 of the original score
 | | 1 flame placed on high platform | 15 |
 | | pair flame placed on low platform | (10+10)*1.5 = 30 |
 | | pair flame placed on high platform | (15+15)*1.5 = 45 |
-| | two flame with same color placed on low platform | 10 + 10 = 15 |
+| | two flame with same color placed on low platform | 10 + 10 = 20 |
 | | two flame with same color placed on high platform | 15 + 15 = 30 |
 
 ### Constraint
