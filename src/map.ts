@@ -13,6 +13,11 @@ export class Map {
     this.#updated = false;
   }
 
+  public initMap(color: FlameColor): void {
+    this.#coordinate = Array.from(Array(5), _ => Array(5).fill(color));
+    this.#highLookout = Array.from(Array(5), _ => Array(4).fill(color))
+  }
+
   getRandomXY(): number[] {
     let x: number = Math.floor(Math.random() * 5); // Randomize from 1-5
     let y: number = Math.floor(Math.random() * 3 + 1); // Randomize from 2-4

@@ -3,10 +3,10 @@ import { Robot, BotOrientation } from './Robot.js';
 import { Map } from './map.js';
 import { Fire, initFire } from './Fire.js'
 import { initWasm } from './script.js';
-import { simulate } from './Simulation.js'; 
+import { checkHighScore, initSimulation, resetSimulation, simulate } from './Simulation.js'; 
 import { Stats } from './Stats.js';
 
-const canvasWidth: number = 1800; // Scale 1:2.67
+const canvasWidth: number = 1900; // Scale 1:2.67
 export const arenaWidth: number = 1575; // Scale 1:2.67
 const canvasHeight: number = 1200;
 export const wallWidth: number = 37.45;
@@ -17,37 +17,39 @@ const startWidth: number = 225;
 export var bot: Robot;
 export var fireArr: Fire[] = [];
 export var map: Map;
-let stats: Stats;
+export let stats: Stats;
 
 const s = (p: p5) => {
-  p.setup = async () => {
+  p.preload = async () => {
     await initWasm();
     p.createCanvas(canvasWidth, canvasHeight);
 
     p.angleMode(p.DEGREES);
-
+  }
+  p.setup = async () => {
     bot = new Robot();
     map = new Map();
     stats = new Stats();
     map.populateFire();
     initFire();
-
     simulate();
   };
 
   p.draw = () => {
     drawArena(p);
     bot.update();
-    // bot.halt === false ? bot.automateMove() : undefined;
+    // bot.halt === false ? bot.automateMove() : undefined; // Automate robot moves based on C output
     bot.show(p);
     for (const fire of fireArr) { // Draw fire
       fire.show(p);
     }
     map.showLookout(p);
     stats.show(p);
+    checkHighScore();
   };
 
   p.keyPressed = () => {
+    stats.incrementMoves();
     switch (p.keyCode) {
       case 65: // a 
         bot.dir(-1, 0);
@@ -86,6 +88,11 @@ const s = (p: p5) => {
         break;
       case 40: // bottom
         bot.rotate(BotOrientation.Bottom)
+        break;
+      case 82:
+        resetSimulation();
+        initSimulation();
+        stats.resetAll();
         break;
     }
   };

@@ -8,18 +8,44 @@ export class Stats {
   static #pairLow: number = 30;
   static #singleHigh: number = 15;
   static #singleLow: number = 10;
+  static #trialsNum: number = 0;
+  static #winstreak: number = 0;
+  static #moves: number = 0;
+  static #totalMoves: number = 0;
+  static #averageMoves: number = 0;
 
   constructor() {
     this.#score = 0;
   }
 
   public reset(): void {
+    this.resetScore();
+    Stats.#moves = 0;
+  }
+
+  public resetScore(): void {
     this.#score = 0;
+  }
+
+  public resetAll(): void {
+    this.reset();
+    Stats.#totalMoves = 0;
+    Stats.#averageMoves = 0;
+    Stats.#winstreak = 0;
+  }
+
+  public calcuteAvgMove(): void {
+    Stats.#totalMoves += Stats.#moves;
+    Stats.#averageMoves = Stats.#totalMoves / (Stats.#winstreak + 1); // TODO: implement actual game count
+  }
+
+  public incrementMoves(): void {
+    Stats.#moves++;
   }
 
   private calculateScore(): void {
     if (!map.updated) return;
-    this.reset();
+    this.resetScore();
     let blue: number = 0; // To track number of flame
     let red: number = 0;
     for (let i = 0; i < 5; i++) {
@@ -39,10 +65,21 @@ export class Stats {
     map.updated = false;
   }
 
+  public get score(): number {
+    return this.#score;
+  }
+
+  public increaseWinstreak(): void {
+    Stats.#winstreak++;
+  }
+
   public show(p: p5): void {
     this.calculateScore();
     p.textSize(40)
     p.fill("White");
     p.text(`Score: ${this.#score}`, arenaWidth, 400);
+    p.text(`Moves: ${Stats.#moves}`, arenaWidth, 500);
+    p.text(`Avg Moves: ${Stats.#averageMoves}`, arenaWidth, 600);
+    p.text(`Win streak: ${Stats.#winstreak}`, arenaWidth, 700);
   }
 }

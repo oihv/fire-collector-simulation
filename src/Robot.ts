@@ -77,13 +77,13 @@ export class Robot extends MainObj {
     if (this.checkCollisionFire(newGridX, newGridY)) return;
     this.speedX = newSpeedX;
     this.speedY = newSpeedY;
-    this.updateOrientation();
+    // this.updateOrientation(); // Commented out so it emulates mecanum wheel
     this.updateGrid(newGridX, newGridY);
     this.idle = false;
   }
 
   private moveForward(): void {
-    switch(this.orientation) {
+    switch (this.orientation) {
       case BotOrientation.Right:
         this.executeMove(BotInstruction.movr);
         break;
@@ -255,11 +255,21 @@ export class Robot extends MainObj {
     else return false;
   }
 
+  // Check whether the bot is correctly facing the flame when taking it
+  private checkCorrectOrientation(newGridX: number, newGridY: number): boolean {
+    if (this.gridX < newGridX && this.orientation != BotOrientation.Right) return false;
+    else if (this.gridX > newGridX && this.orientation != BotOrientation.Left) return false;
+    if (this.gridY < newGridY && this.orientation != BotOrientation.Bottom) return false;
+    else if (this.gridY > newGridY && this.orientation != BotOrientation.Top) return false;
+    return true;
+  }
+
   private checkCollisionFire(newGridX: number, newGridY: number): boolean {
     if (map.getVal(newGridX, newGridY) != FlameColor.Empty) { // If the next target grid have a flame
       if (this.curFireStorage >= Robot.maxFireStorage)
         return true; // If the capacity is full
       else {
+        console.assert(this.checkCorrectOrientation(newGridX, newGridY), "Bot not facing to the flame while taking it.");
         this.isTakingFire = true; // Take fire when arrived
         return false;
       }
@@ -307,6 +317,25 @@ export class Robot extends MainObj {
 
   public getGridXY(): number[] {
     return Array(this.gridX, this.gridY);
+  }
+
+  public reset(): void {
+    this.speedX = 0;
+    this.speedY = 0;
+    this.targetX = 0;
+    this.targetY = 0;
+    this.gridX = 2;
+    this.gridY = 0;
+    this.x = wallWidth + (this.gridX + 1) * horizontalLineGap; // Offset
+    this.y = wallWidth + this.gridY * verticalLineGap;
+
+    this.curFireStorage = 0;
+    this.#instructionIndex = 0;
+
+    this.orientation = BotOrientation.Bottom;
+    this.idle = true;
+    this.#halt = false;
+    this.isTakingFire = false;
   }
 
   public show(p: p5) {

@@ -1,6 +1,8 @@
 import { pathFind } from "./script";
-import { map } from "./sketch";
+import { fireArr, map, bot } from "./sketch";
 import { BotInstruction } from "./Robot";
+import { FlameColor, clearFire, initFire } from "./Fire";
+import { stats } from "./sketch";
 
 export let botMoves: BotInstruction[] = [];
 const botMovesLength: number = 20; // Placeholder number
@@ -37,4 +39,26 @@ export function simulate(): void {
 
   Module._free(coordinatePtr);
   Module._free(movesPtr);
+}
+
+export function initSimulation(): void {
+  map.initMap(FlameColor.Empty);
+  map.populateFire();
+  initFire();
+}
+
+export function resetSimulation(): void {
+  bot.reset();
+  clearFire();
+  fireArr.length = 0; // Reset array
+  stats.reset();
+}
+
+export function checkHighScore(): void {
+  if (stats.score === 180) {
+    stats.calcuteAvgMove();
+    resetSimulation();
+    initSimulation();
+    stats.increaseWinstreak();
+  }
 }
