@@ -1,5 +1,9 @@
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+#define Q_SIZE 20
+#define MAP_SIZE 5
 
 typedef enum {
   // Move right, bottom, left, top
@@ -25,8 +29,45 @@ typedef enum {
   stop,
 } BotInstruction;
 
+typedef enum { Right, Bottom, Left, Top } BotOrientation;
+
 typedef enum { Empty, Blue, Red } FlameColor;
 
+typedef struct {
+  uint8_t x;
+  uint8_t y;
+  BotOrientation orientation;
+  FlameColor storage[4];
+} Bot;
+
+typedef struct {
+  int8_t x;
+  int8_t y;
+} Node;
+
+typedef struct {
+  Node arr[Q_SIZE];
+  uint8_t size;
+  uint8_t popIndex; // It can get to -1
+  uint8_t pushIndex;
+} Queue, Stack; // Since they use the same term
+
 extern void pathFind(BotInstruction *moves, FlameColor *const map);
-void checkPrime(int *number);
-int (*generate2DArray(FlameColor *const map))[5];
+// TODO: technical debt here, const in this parameter doesn't really mean that
+// the map can't be changed I believe, change later
+int BFS(const FlameColor map[MAP_SIZE][MAP_SIZE], Bot *const bot,
+        FlameColor target, Node visited[MAP_SIZE][MAP_SIZE], Node *targetPos);
+void initVisitedMatrix(Node matrix[5][5]);
+void traceBackPath(const Node visited[MAP_SIZE][MAP_SIZE], Stack *prevNodes,
+                   const Node targetPos);
+void generateInstruction(Stack *prevNodes, Bot *bot, BotInstruction *moves,
+                         uint8_t *insIndex);
+void orientateBot(Bot *bot, BotOrientation orientation, BotInstruction *moves,
+                  uint8_t *insIndex);
+void initQueue(Queue *q);
+Node popQueue(Queue *q);
+void pushQueue(Queue *q, uint8_t x, uint8_t y);
+void initStack(Stack *q);
+Node popStack(Stack *q);
+void pushStack(Stack *q, uint8_t x, uint8_t y);
+FlameColor (*generate2DArray(FlameColor *const map))[5];
