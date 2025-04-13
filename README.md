@@ -97,11 +97,14 @@ for now we are assuming the robot have these benchmarks:
 
 ## Todo
 - [x] Implement taking flame
-- [ ] Implement placing flame
-- [ ] Interface C through wasm
-- [ ] Write tests
-- [ ] Show benchmark analysis
-- [ ] 
+- [x] Implement placing flame
+- [x] Interface C through wasm
+- [x] Write tests
+- [x] Show benchmark analysis
+- [ ] Breakup C modules into different source files, how to compile them? (just
+giving different file inputs will work, maybe)
+- [ ] First algorithm prototype
+- [ ] Add more benchmark
 
 ## WASM Emscripten notes
 to output from printf() to console.log() you must put '\n'
