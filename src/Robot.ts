@@ -1,7 +1,7 @@
 import p5 from 'p5'
 import { wallWidth, horizontalLineGap, verticalLineGap } from './sketch.js';
 import { MainObj } from './Object.js';
-import { map } from './sketch.js';
+import { map, stats } from './sketch.js';
 import { fireArr } from './sketch.js';
 import { Fire, FlameColor } from './Fire.js';
 import { botMoves } from './Simulation.js';
@@ -15,9 +15,9 @@ export enum BotOrientation {
 
 export enum BotInstruction {
   movr = 0,
-  movb = 1,
+  movf = 1,
   movl = 2,
-  movt = 3,
+  movb = 3,
   rotl = 4,
   rotr = 5,
   rotb = 6,
@@ -49,7 +49,7 @@ export class Robot extends MainObj {
     super();
     this.size = 60;
 
-    this.speed = 15;
+    this.speed = 345;
     this.speedX = 0;
     this.speedY = 0;
     this.targetX = 0;
@@ -71,6 +71,7 @@ export class Robot extends MainObj {
   dir(newSpeedX: number, newSpeedY: number) {
     if (this.idle === false) return;
 
+    [newSpeedX, newSpeedY] = this.normalizeDirection(newSpeedX, newSpeedY);
     let newGridX = this.gridX + newSpeedX;
     let newGridY = this.gridY + newSpeedY;
     if (this.isOutConstraint(newGridX, newGridY)) return;
@@ -82,21 +83,25 @@ export class Robot extends MainObj {
     this.idle = false;
   }
 
-  private moveForward(): void {
+  private normalizeDirection(newSpeedX: number, newSpeedY: number): number[] {
+    let temp = newSpeedX;
     switch (this.orientation) {
-      case BotOrientation.Right:
-        this.executeMove(BotInstruction.movr);
-        break;
       case BotOrientation.Bottom:
-        this.executeMove(BotInstruction.movb);
         break;
-      case BotOrientation.Left:
-        this.executeMove(BotInstruction.movl);
+      case BotOrientation.Right:
+        newSpeedX = newSpeedY;
+        newSpeedY = -temp;
         break;
       case BotOrientation.Top:
-        this.executeMove(BotInstruction.movt);
+        newSpeedX = -newSpeedX;
+        newSpeedY = -newSpeedY;
+        break;
+      case BotOrientation.Left:
+        newSpeedX = -newSpeedY;
+        newSpeedY = temp;
         break;
     }
+    return Array(newSpeedX, newSpeedY);
   }
 
   private updateOrientation(): void {
@@ -198,37 +203,79 @@ export class Robot extends MainObj {
       }
       this.executeMove(botMoves[this.#instructionIndex]);
       this.#instructionIndex++;
+      stats.incrementMoves();
     }
   }
 
   public executeMove(ins: BotInstruction): void {
+    let orientateTo: BotOrientation;
     switch (ins) {
       case BotInstruction.movr:
-        this.dir(1, 0);
+        this.dir(-1, 0);
         break;
-      case BotInstruction.movb:
+      case BotInstruction.movf:
         this.dir(0, 1);
         break;
       case BotInstruction.movl:
-        this.dir(-1, 0);
+        this.dir(1, 0);
         break;
-      case BotInstruction.movt:
+      case BotInstruction.movb:
         this.dir(0, -1);
         break;
       case BotInstruction.rotl:
-        this.rotate(BotOrientation.Left)
+        switch (this.orientation) {
+          case BotOrientation.Right:
+            orientateTo = BotOrientation.Top;
+            break;
+          case BotOrientation.Bottom:
+            orientateTo = BotOrientation.Right;
+            break;
+          case BotOrientation.Left:
+            orientateTo = BotOrientation.Bottom;
+            break;
+          case BotOrientation.Top:
+            orientateTo = BotOrientation.Left;
+            break;
+        }
+        this.rotate(orientateTo);
         break;
       case BotInstruction.rotr:
-        this.rotate(BotOrientation.Right)
+        switch (this.orientation) {
+          case BotOrientation.Right:
+            orientateTo = BotOrientation.Bottom;
+            break;
+          case BotOrientation.Bottom:
+            orientateTo = BotOrientation.Left;
+            break;
+          case BotOrientation.Left:
+            orientateTo = BotOrientation.Top;
+            break;
+          case BotOrientation.Top:
+            orientateTo = BotOrientation.Right;
+            break;
+        }
+        this.rotate(orientateTo);
         break;
       case BotInstruction.rotb:
-        let orientateTo: BotOrientation;
-        this.orientation === BotOrientation.Bottom ? orientateTo = BotOrientation.Top : orientateTo = BotOrientation.Bottom;
+        switch (this.orientation) {
+          case BotOrientation.Right:
+            orientateTo = BotOrientation.Left;
+            break;
+          case BotOrientation.Bottom:
+            orientateTo = BotOrientation.Top;
+            break;
+          case BotOrientation.Left:
+            orientateTo = BotOrientation.Right;
+            break;
+          case BotOrientation.Top:
+            orientateTo = BotOrientation.Bottom;
+            break;
+        }
         this.rotate(orientateTo);
         break;
       case BotInstruction.take:
         // For now, only move forward and take the ore there
-        this.moveForward();
+        this.dir(0, 1);
         break;
       case BotInstruction.puth0:
         this.checkLookoutCollision(0);
