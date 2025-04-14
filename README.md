@@ -103,8 +103,13 @@ for now we are assuming the robot have these benchmarks:
 - [x] Show benchmark analysis
 - [ ] Breakup C modules into different source files, how to compile them? (just
 giving different file inputs will work, maybe)
-- [ ] First algorithm prototype
-- [ ] Add more benchmark
+- [x] First algorithm prototype
+- [ ] Add more benchmark (Time estimation)
+- [ ] Test case
+- [ ] Bug hunting
+- [ ] Diagonal movement
+- [ ] Improve algorithm (find nearest, not specific color, etc)
+- [ ] Control speed real time
 
 ## WASM Emscripten notes
 to output from printf() to console.log() you must put '\n'
