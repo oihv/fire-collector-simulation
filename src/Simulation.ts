@@ -43,8 +43,9 @@ export function simulate(): void {
 
 export function initSimulation(): void {
   map.initMap(FlameColor.Empty);
-  map.populateFire();
+  map.populateRandomFire();
   initFire();
+  simulate();
 }
 
 export function resetSimulation(): void {
@@ -60,5 +61,6 @@ export function checkHighScore(): void {
     resetSimulation();
     initSimulation();
     stats.increaseWinstreak();
+    console.log("Game finished");
   }
 }
