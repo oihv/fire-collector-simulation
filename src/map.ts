@@ -25,7 +25,7 @@ export class Map {
     return Array(x, y)
   }
 
-  populateFire(): void {
+  populateRandomFire(): void {
     let x: number;
     let y: number;
 
@@ -40,6 +40,14 @@ export class Map {
       while (this.#coordinate[x][y] != 0)
 
       this.#coordinate[x][y] = FlameColor.Red;
+    }
+  }
+
+  populateFixedFire(arr: number[][]): void {
+    for (let i = 0; i < 5; i++) {
+      for (let j = 0; j < 3; j++) {
+        this.#coordinate[i][j + 1] = arr[j][i];
+      }
     }
   }
 
