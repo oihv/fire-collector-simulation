@@ -113,3 +113,9 @@ giving different file inputs will work, maybe)
 
 ## WASM Emscripten notes
 to output from printf() to console.log() you must put '\n'
+
+## Benchmarks
+1. Initial algorithm, alternating BFS from red, blue, etc. AVG 
+2. Second improvement, instead of fixed to search red first etc, start by
+   searching all the possibilities, and determine the minimum moves it can make.
+   Average Moves = <35 (100 win streak)
