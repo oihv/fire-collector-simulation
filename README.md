@@ -115,7 +115,8 @@ giving different file inputs will work, maybe)
 to output from printf() to console.log() you must put '\n'
 
 ## Benchmarks
-1. Initial algorithm, alternating BFS from red, blue, etc. AVG 
+1. Initial algorithm, alternating BFS from red, blue, etc.
+   Average Moves = >36 (50 win streak)
 2. Second improvement, instead of fixed to search red first etc, start by
    searching all the possibilities, and determine the minimum moves it can make.
    Average Moves = <35 (100 win streak)
