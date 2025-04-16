@@ -30,7 +30,7 @@ const s = (p: p5) => {
     bot = new Robot();
     map = new Map();
     stats = new Stats();
-    map.populateFire();
+    map.populateRandomFire();
     initFire();
     simulate();
   };
