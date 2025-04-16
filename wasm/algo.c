@@ -158,8 +158,7 @@ void traceBackPath(const Node visited[MAP_SIZE][MAP_SIZE], Stack *prevNodes,
   popStack(prevNodes); // To pop the targetNode
 }
 
-void generateInstruction(Stack *prevNodes, Bot *bot, BotInstruction *moves,
-                         uint8_t *insIndex) {
+void generateInstruction(Stack *prevNodes, Bot *bot, BotInstruction *moves, uint8_t *insIndex) {
   while (prevNodes->size > 0) {
     Node next = popStack(prevNodes);
 
