@@ -1,9 +1,9 @@
 import p5 from 'p5'
 import { Robot, BotOrientation } from './Robot.js';
 import { Map } from './map.js';
-import { Fire, initFire } from './Fire.js'
+import { Fire } from './Fire.js'
 import { initWasm } from './script.js';
-import { checkHighScore, initSimulation, resetSimulation, simulate } from './Simulation.js'; 
+import { checkHighScore, initSimulation, resetSimulation } from './Simulation.js'; 
 import { Stats } from './Stats.js';
 
 const canvasWidth: number = 1900; // Scale 1:2.67
@@ -18,6 +18,7 @@ export var bot: Robot;
 export var fireArr: Fire[] = [];
 export var map: Map;
 export let stats: Stats;
+export let speedSlider: any; // Slider from p5
 
 const s = (p: p5) => {
   p.preload = async () => {
@@ -27,18 +28,21 @@ const s = (p: p5) => {
     p.angleMode(p.DEGREES);
   }
   p.setup = async () => {
+    // Create slider for speed conrol
+    speedSlider = p.createSlider(0, 200, 150, 10);
+    speedSlider.position(2000, 500); // This positions outside of <canvas/>
+    speedSlider.size(150);
+
     bot = new Robot();
     map = new Map();
     stats = new Stats();
-    map.populateRandomFire();
-    initFire();
-    simulate();
+    initSimulation();
   };
 
   p.draw = () => {
     drawArena(p);
     bot.update();
-    // bot.halt === false ? bot.automateMove() : undefined; // Automate robot moves based on C output
+    bot.halt === false ? bot.automateMove() : undefined; // Automate robot moves based on C output
     bot.show(p);
     for (const fire of fireArr) { // Draw fire
       fire.show(p);

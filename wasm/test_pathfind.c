@@ -33,7 +33,7 @@ int main() {
     bot.orientation = Bottom;
     insIndex = 0;
     resetLookoutMap(lookoutMap);
-    findAlternateColor(map, &bot, moves, &insIndex, lookoutMap);
+    findAlternateColor(Blue, map, &bot, moves, &insIndex, lookoutMap);
 
     int i = 0;
     assert(moves[i++] == movr);
@@ -55,7 +55,7 @@ int main() {
     bot.orientation = Bottom;
     insIndex = 0;
     resetLookoutMap(lookoutMap);
-    findAlternateColor(map, &bot, moves, &insIndex, lookoutMap);
+    findAlternateColor(Blue, map, &bot, moves, &insIndex, lookoutMap);
 
     int i = 0;
     assert(moves[i++] == movr);
@@ -75,7 +75,7 @@ int main() {
     bot.orientation = Bottom;
     insIndex = 0;
     resetLookoutMap(lookoutMap);
-    findAlternateColor(map, &bot, moves, &insIndex, lookoutMap);
+    findAlternateColor(Blue, map, &bot, moves, &insIndex, lookoutMap);
 
     int i = 0;
     assert(moves[i++] == movl);
@@ -97,7 +97,7 @@ int main() {
     bot.orientation = Bottom;
     insIndex = 0;
     resetLookoutMap(lookoutMap);
-    findAlternateColor(map, &bot, moves, &insIndex, lookoutMap);
+    findAlternateColor(Blue, map, &bot, moves, &insIndex, lookoutMap);
 
     int i = 0;
     assert(moves[i++] == movf);
@@ -115,6 +115,22 @@ int main() {
     assert(moves[i++] == puth1);
     assert(moves[i++] == puth2);
     assert(moves[i++] == puth3);
+  }
+  {
+    FlameColor map[5][5] = {{0, 0, 0, 0, 0},
+                            {2, 1, 2, 0, 1},
+                            {1, 1, 0, 0, 0},
+                            {0, 2, 2, 0, 0},
+                            {0, 0, 0, 0, 0}};
+    transposeMatrix(map);
+
+    bot.x = 2, bot.y = 0;
+    bot.orientation = Bottom;
+    insIndex = 0;
+    resetLookoutMap(lookoutMap);
+    findBestAlternatePath(map, &bot, moves);
+
+    int i = 0;
   }
   printf("PathFind test passed!\n");
   return 0;

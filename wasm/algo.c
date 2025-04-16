@@ -1,4 +1,8 @@
 #include "algo.h"
+#include "types.h"
+#include "utils.h"
+#include <stdint.h>
+#include <string.h>
 
 extern void pathFind(BotInstruction *moves, FlameColor *const map) {
   FlameColor(*matrix)[MAP_SIZE] = generate2DArray(map);
@@ -14,9 +18,10 @@ extern void pathFind(BotInstruction *moves, FlameColor *const map) {
 
   uint8_t insIndex = 0;        // Index pointing to next empty slot on array
   uint8_t lookoutMap[5] = {0}; // Array to track availability of lookout
-  findAlternateColor(matrix, &bot, moves, &insIndex, lookoutMap);
-  findAlternateColor(matrix, &bot, moves, &insIndex, lookoutMap);
+  findAlternateColor(Red, matrix, &bot, moves, &insIndex, lookoutMap);
+  findAlternateColor(Red, matrix, &bot, moves, &insIndex, lookoutMap);
   moves[insIndex] = stop;
+  // findBestAlternatePath(matrix, &bot, moves);
 }
 
 uint8_t findPathToTarget(FlameColor target, uint8_t lookoutFlag,
@@ -33,37 +38,43 @@ uint8_t findPathToTarget(FlameColor target, uint8_t lookoutFlag,
   return found;
 }
 
-int findAlternateColor(FlameColor map[MAP_SIZE][MAP_SIZE], Bot *const bot,
-                       BotInstruction *moves, uint8_t *insIndex,
+int findAlternateColor(FlameColor target, FlameColor map[MAP_SIZE][MAP_SIZE],
+                       Bot *const bot, BotInstruction *moves, uint8_t *insIndex,
                        uint8_t *lookoutMap) {
-  FlameColor mapCopy[MAP_SIZE][MAP_SIZE]; // For restoring
-  memcpy(mapCopy, map, sizeof(FlameColor) * MAP_SIZE * MAP_SIZE);
-  uint8_t found = 0;
   // TODO: divide into cases, based on the priority, later
   Node targetPos;
 
-  findPathToTarget(Blue, 0, map, bot, &targetPos, lookoutMap, moves, insIndex);
+  if (!findPathToTarget(target, 0, map, bot, &targetPos, lookoutMap, moves,
+                        insIndex))
+    return 0;
   moves[(*insIndex)++] = take;
   map[targetPos.x][targetPos.y] = Empty;
 
-  // found = BFS(map, bot, Red, visited, &targetPos, 0, lookoutMap);
-  // traceBackPath(visited, &prevNodes, targetPos);
-  // generateInstruction(&prevNodes, bot, moves, insIndex);
-  // moves[(*insIndex)++] = take;
-  findPathToTarget(Red, 0, map, bot, &targetPos, lookoutMap, moves, insIndex);
+  target = toggleColor(target);
+  if (!findPathToTarget(target, 0, map, bot, &targetPos, lookoutMap, moves,
+                        insIndex))
+    return 0;
   moves[(*insIndex)++] = take;
   map[targetPos.x][targetPos.y] = Empty;
 
-  findPathToTarget(Blue, 0, map, bot, &targetPos, lookoutMap, moves, insIndex);
+  target = toggleColor(target);
+  if (!findPathToTarget(target, 0, map, bot, &targetPos, lookoutMap, moves,
+                        insIndex))
+    return 0;
   moves[(*insIndex)++] = take;
   map[targetPos.x][targetPos.y] = Empty;
 
-  findPathToTarget(Red, 0, map, bot, &targetPos, lookoutMap, moves, insIndex);
+  target = toggleColor(target);
+  if (!findPathToTarget(target, 0, map, bot, &targetPos, lookoutMap, moves,
+                        insIndex))
+    return 0;
   moves[(*insIndex)++] = take;
   map[targetPos.x][targetPos.y] = Empty;
 
   // Find lookout
-  findPathToTarget(Red, 1, map, bot, &targetPos, lookoutMap, moves, insIndex);
+  if (!findPathToTarget(target, 1, map, bot, &targetPos, lookoutMap, moves,
+                        insIndex))
+    return 0;
   lookoutMap[targetPos.x] = 1; // Mark as found
   // TODO: what if, we want to diagonally go here, update later
   moves[(*insIndex)++] = movf;
@@ -77,7 +88,65 @@ int findAlternateColor(FlameColor map[MAP_SIZE][MAP_SIZE], Bot *const bot,
 
   // TODO: if the route is not found, restore the original map, otherwise, keep
   // it modified
-  return found;
+  return 1; // Indicating the route is found
+}
+
+void findBestAlternatePath(FlameColor map[MAP_SIZE][MAP_SIZE], Bot *const bot,
+                           BotInstruction *moves) {
+
+  FlameColor mapCopy[MAP_SIZE][MAP_SIZE]; // so original map won't be modified
+  memcpy(mapCopy, map, sizeof(FlameColor) * MAP_SIZE * MAP_SIZE);
+  // Find the best case out of the 4 different cases
+  uint8_t insIndex[4] = {0};   // Index pointing to next slot on moves array
+  uint8_t lookoutMap[5] = {0}; // Array to track availability of lookout
+  BotInstruction movesBuffer[4][50] = {0};
+
+  // Find the path for the corresponding path, but if no path can be found, set
+  // index to zero instead
+  // RBRB, RBRB
+  if (!findAlternateColor(Red, mapCopy, bot, movesBuffer[0], insIndex,
+                          lookoutMap) ||
+      !findAlternateColor(Red, mapCopy, bot, movesBuffer[0], insIndex,
+                          lookoutMap))
+    insIndex[0] = 0;
+  // RBRB, BRBR
+  bot->x = 2, bot->y = 0, bot->orientation = Bottom;
+  resetArray(lookoutMap, 4, 0);
+  memcpy(mapCopy, map, sizeof(FlameColor) * MAP_SIZE * MAP_SIZE); // Reset map
+  if (!findAlternateColor(Red, mapCopy, bot, movesBuffer[1], insIndex + 1,
+                          lookoutMap) ||
+      !findAlternateColor(Blue, mapCopy, bot, movesBuffer[1], insIndex + 1,
+                          lookoutMap))
+    insIndex[1] = 0;
+  // BRBR, RBRB
+  bot->x = 2, bot->y = 0, bot->orientation = Bottom;
+  resetArray(lookoutMap, 4, 0);
+  memcpy(mapCopy, map, sizeof(FlameColor) * MAP_SIZE * MAP_SIZE);
+  if (!findAlternateColor(Blue, mapCopy, bot, movesBuffer[2], insIndex + 2,
+                          lookoutMap) ||
+      !findAlternateColor(Red, mapCopy, bot, movesBuffer[2], insIndex + 2,
+                          lookoutMap))
+    insIndex[2] = 0;
+  // BRBR, BRBR
+  bot->x = 2, bot->y = 0, bot->orientation = Bottom;
+  resetArray(lookoutMap, 4, 0);
+  memcpy(mapCopy, map, sizeof(FlameColor) * MAP_SIZE * MAP_SIZE);
+  if (!findAlternateColor(Blue, mapCopy, bot, movesBuffer[3], insIndex + 3,
+                          lookoutMap) ||
+      !findAlternateColor(Blue, mapCopy, bot, movesBuffer[3], insIndex + 3,
+                          lookoutMap))
+    insIndex[3] = 0;
+
+  uint8_t min = findMin(insIndex, 4);
+
+  for (uint8_t i = 0; i < 4; i++) {
+    if (insIndex[i] == min) {
+      memcpy(moves, movesBuffer[i], sizeof(BotInstruction) * min);
+      break;
+    }
+  }
+
+  moves[min] = stop;
 }
 
 int BFS(const FlameColor map[MAP_SIZE][MAP_SIZE], Bot *const bot,

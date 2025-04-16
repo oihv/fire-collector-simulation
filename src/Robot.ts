@@ -1,7 +1,7 @@
 import p5 from 'p5'
 import { wallWidth, horizontalLineGap, verticalLineGap } from './sketch.js';
 import { MainObj } from './Object.js';
-import { map, stats } from './sketch.js';
+import { map, stats, speedSlider } from './sketch.js';
 import { fireArr } from './sketch.js';
 import { Fire, FlameColor } from './Fire.js';
 import { botMoves } from './Simulation.js';
@@ -49,7 +49,7 @@ export class Robot extends MainObj {
     super();
     this.size = 60;
 
-    this.speed = 345;
+    this.speed = 115;
     this.speedX = 0;
     this.speedY = 0;
     this.targetX = 0;
@@ -188,6 +188,7 @@ export class Robot extends MainObj {
     }
     this.x += this.speedX * this.speed;
     this.y += this.speedY * this.speed;
+    this.speed = speedSlider.value();
   }
 
   public get halt(): boolean {

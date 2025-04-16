@@ -1,4 +1,24 @@
 #include "utils.h"
+#include "types.h"
+#include <stdint.h>
+
+uint8_t findMin(uint8_t *arr, uint8_t size) {
+  uint8_t min = 255;
+  for (uint8_t i = 0; i < size; i++) {
+    if (arr[i] < min && arr[i] != 0) // Ignore zero
+      min = arr[i];
+  }
+  return min;
+}
+
+void resetArray(uint8_t *arr, uint8_t size, uint8_t value) {
+  for (uint8_t i = 0; i < size; i++) {
+    arr[i] = value;
+  }
+}
+
+FlameColor toggleColor(FlameColor curr) { return curr == Blue ? Red : Blue; }
+
 void initVisitedMatrix(Node matrix[MAP_SIZE][MAP_SIZE]) {
   for (int i = 0; i < MAP_SIZE; i++) {
     for (int j = 0; j < MAP_SIZE; j++) {
@@ -85,6 +105,13 @@ FlameColor (*generate2DArray(FlameColor *const map))[MAP_SIZE] {
   }
 
   return arr;
+}
+
+void printInstruction(BotInstruction *arr, uint8_t size) {
+  for (int i = 0; i < size; i++) {
+    printf("%d ", arr[i]);
+  }
+  printf("\n");
 }
 
 void printMap(FlameColor map[MAP_SIZE][MAP_SIZE]) {
