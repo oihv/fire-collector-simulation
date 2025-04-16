@@ -1,6 +1,4 @@
 #include "algo.h"
-#include <stdint.h>
-#include <string.h>
 
 extern void pathFind(BotInstruction *moves, FlameColor *const map) {
   FlameColor(*matrix)[MAP_SIZE] = generate2DArray(map);
@@ -18,6 +16,21 @@ extern void pathFind(BotInstruction *moves, FlameColor *const map) {
   uint8_t lookoutMap[5] = {0}; // Array to track availability of lookout
   findAlternateColor(matrix, &bot, moves, &insIndex, lookoutMap);
   findAlternateColor(matrix, &bot, moves, &insIndex, lookoutMap);
+  moves[insIndex] = stop;
+}
+
+uint8_t findPathToTarget(FlameColor target, uint8_t lookoutFlag,
+                         FlameColor map[MAP_SIZE][MAP_SIZE], Bot *const bot,
+                         Node *targetPos, uint8_t *lookoutMap,
+                         BotInstruction *moves, uint8_t *insIndex) {
+  uint8_t found = 0;
+  Node visited[MAP_SIZE][MAP_SIZE];
+  Stack prevNodes;
+  initStack(&prevNodes);
+  found = BFS(map, bot, target, visited, targetPos, lookoutFlag, lookoutMap);
+  traceBackPath(visited, &prevNodes, *targetPos);
+  generateInstruction(&prevNodes, bot, moves, insIndex);
+  return found;
 }
 
 int findAlternateColor(FlameColor map[MAP_SIZE][MAP_SIZE], Bot *const bot,
@@ -27,49 +40,40 @@ int findAlternateColor(FlameColor map[MAP_SIZE][MAP_SIZE], Bot *const bot,
   memcpy(mapCopy, map, sizeof(FlameColor) * MAP_SIZE * MAP_SIZE);
   uint8_t found = 0;
   // TODO: divide into cases, based on the priority, later
-  Node visited[MAP_SIZE][MAP_SIZE];
   Node targetPos;
-  Stack prevNodes;
-  initStack(&prevNodes);
 
-  found = BFS(map, bot, Blue, visited, &targetPos, 0, lookoutMap);
-  traceBackPath(visited, &prevNodes, targetPos);
-  generateInstruction(&prevNodes, bot, moves, insIndex);
+  findPathToTarget(Blue, 0, map, bot, &targetPos, lookoutMap, moves, insIndex);
   moves[(*insIndex)++] = take;
   map[targetPos.x][targetPos.y] = Empty;
 
-  found = BFS(map, bot, Red, visited, &targetPos, 0, lookoutMap);
-  traceBackPath(visited, &prevNodes, targetPos);
-  generateInstruction(&prevNodes, bot, moves, insIndex);
+  // found = BFS(map, bot, Red, visited, &targetPos, 0, lookoutMap);
+  // traceBackPath(visited, &prevNodes, targetPos);
+  // generateInstruction(&prevNodes, bot, moves, insIndex);
+  // moves[(*insIndex)++] = take;
+  findPathToTarget(Red, 0, map, bot, &targetPos, lookoutMap, moves, insIndex);
   moves[(*insIndex)++] = take;
   map[targetPos.x][targetPos.y] = Empty;
 
-  found = BFS(map, bot, Blue, visited, &targetPos, 0, lookoutMap);
-  traceBackPath(visited, &prevNodes, targetPos);
-  generateInstruction(&prevNodes, bot, moves, insIndex);
+  findPathToTarget(Blue, 0, map, bot, &targetPos, lookoutMap, moves, insIndex);
   moves[(*insIndex)++] = take;
   map[targetPos.x][targetPos.y] = Empty;
 
-  found = BFS(map, bot, Red, visited, &targetPos, 0, lookoutMap);
-  traceBackPath(visited, &prevNodes, targetPos);
-  generateInstruction(&prevNodes, bot, moves, insIndex);
+  findPathToTarget(Red, 0, map, bot, &targetPos, lookoutMap, moves, insIndex);
   moves[(*insIndex)++] = take;
   map[targetPos.x][targetPos.y] = Empty;
 
   // Find lookout
-  found = BFS(map, bot, Red, visited, &targetPos, 1, lookoutMap);
-  traceBackPath(visited, &prevNodes, targetPos);
-  generateInstruction(&prevNodes, bot, moves, insIndex);
+  findPathToTarget(Red, 1, map, bot, &targetPos, lookoutMap, moves, insIndex);
   lookoutMap[targetPos.x] = 1; // Mark as found
   // TODO: what if, we want to diagonally go here, update later
   moves[(*insIndex)++] = movf;
+  orientateBot(bot, Bottom, moves, insIndex); // Make the bot face down
+  (*insIndex)++;
   // Put flame
   moves[(*insIndex)++] = puth0;
   moves[(*insIndex)++] = puth1;
   moves[(*insIndex)++] = puth2;
   moves[(*insIndex)++] = puth3;
-
-  moves[(*insIndex)] = stop;
 
   // TODO: if the route is not found, restore the original map, otherwise, keep
   // it modified
@@ -270,114 +274,4 @@ void orientateBot(Bot *bot, BotOrientation orientation, BotInstruction *moves,
       moves[*insIndex] = rotr;
   }
   bot->orientation = orientation;
-}
-
-void initVisitedMatrix(Node matrix[MAP_SIZE][MAP_SIZE]) {
-  for (int i = 0; i < MAP_SIZE; i++) {
-    for (int j = 0; j < MAP_SIZE; j++) {
-      // Mark for unvisited as -2
-      matrix[i][j].x = -2;
-      matrix[i][j].y = -2;
-    }
-  }
-}
-
-void initQueue(Queue *q) {
-  q->size = 0;
-  q->popIndex = 0;
-  q->pushIndex = 0;
-}
-
-Node popQueue(Queue *q) {
-  if (q->size == 0)
-    printf("Error: queue is currently empty and tried to be pop.");
-  if (q->popIndex >= 20)
-    q->popIndex -= Q_SIZE;
-  Node temp;
-  temp.x = q->arr[q->popIndex].x;
-  temp.y = q->arr[q->popIndex].y;
-  q->size--;
-  q->popIndex++;
-  return temp;
-}
-
-void pushQueue(Queue *q, uint8_t x, uint8_t y) {
-  if (q->size > Q_SIZE)
-    printf("Error: trying to push to FULL queue");
-  if (q->pushIndex >= 20)
-    q->pushIndex -= Q_SIZE;
-  q->arr[q->pushIndex].x = x;
-  q->arr[q->pushIndex].y = y;
-  q->size++;
-  q->pushIndex++;
-}
-
-void initStack(Stack *q) {
-  q->size = 0;
-  q->popIndex = 0;
-  q->pushIndex = 0;
-}
-
-Node popStack(Stack *q) {
-  if (q->size == 0)
-    printf("Error: stack is currently empty and tried to be pop.");
-  Node temp;
-  temp.x = q->arr[q->popIndex].x;
-  temp.y = q->arr[q->popIndex].y;
-  q->size--;
-  q->popIndex--;
-  q->pushIndex--;
-  return temp;
-}
-
-void pushStack(Stack *q, uint8_t x, uint8_t y) {
-  if (q->size > Q_SIZE)
-    printf("Error: trying to push to FULL stack");
-  q->arr[q->pushIndex].x = x;
-  q->arr[q->pushIndex].y = y;
-  q->size++;
-  q->pushIndex++;
-  q->popIndex = q->pushIndex - 1; // Pops the element on top
-}
-
-// A pointer that return a pointer to an array of 5 elements
-// Generate 2d matrix from flattened array passed from WASM
-FlameColor (*generate2DArray(FlameColor *const map))[MAP_SIZE] {
-  FlameColor(*arr)[MAP_SIZE] = malloc(sizeof(int[MAP_SIZE][MAP_SIZE]));
-
-  int count = 0;
-  for (int i = 0; i < MAP_SIZE; i++) {
-    for (int j = 0; j < MAP_SIZE; j++) {
-      // NOTE: turns out, I aleady flipped my usage from the javascript too,
-      // so no need to retranslate the code NOTE: check for later when
-      // implementing to the robot, whether the orientation of the map is
-      // correct, when inputting, manually, it should be transposed
-      arr[i][j] = map[count];
-      count++;
-    }
-  }
-
-  return arr;
-}
-
-void printMap(FlameColor map[MAP_SIZE][MAP_SIZE]) {
-  FlameColor mapCopy[MAP_SIZE][MAP_SIZE];
-  memcpy(mapCopy, map, sizeof(FlameColor) * MAP_SIZE * MAP_SIZE);
-  transposeMatrix(mapCopy);
-  for (int i = 0; i < MAP_SIZE; i++) {
-    for (int j = 0; j < MAP_SIZE; j++) {
-      printf("%d ", mapCopy[i][j]);
-    }
-    printf("\n");
-  }
-}
-
-void transposeMatrix(FlameColor map[MAP_SIZE][MAP_SIZE]) {
-  for (int i = 1; i < MAP_SIZE; i++) {
-    for (int j = 0; j < i; j++) {
-      FlameColor temp = map[i][j];
-      map[i][j] = map[j][i];
-      map[j][i] = temp;
-    }
-  }
 }

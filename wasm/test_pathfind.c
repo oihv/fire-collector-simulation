@@ -3,6 +3,12 @@
 #include <stdint.h>
 #include <stdio.h>
 
+void resetLookoutMap(uint8_t *map) {
+  for (int i = 0; i < 4; i++) {
+    map[i] = Empty;
+  }
+}
+
 int main() {
   // Blue is 1
   // Red is 2
@@ -13,6 +19,7 @@ int main() {
   Stack prevNodes;
   BotInstruction moves[50];
   uint8_t insIndex = 0;
+  uint8_t lookoutMap[4] = {0};
   Bot bot;
   {
     FlameColor map[5][5] = {{0, 0, 0, 0, 0},
@@ -24,7 +31,9 @@ int main() {
 
     bot.x = 2, bot.y = 0;
     bot.orientation = Bottom;
-    findAlternateColor(map, &bot, moves);
+    insIndex = 0;
+    resetLookoutMap(lookoutMap);
+    findAlternateColor(map, &bot, moves, &insIndex, lookoutMap);
 
     int i = 0;
     assert(moves[i++] == movr);
@@ -44,7 +53,9 @@ int main() {
 
     bot.x = 2, bot.y = 0;
     bot.orientation = Bottom;
-    findAlternateColor(map, &bot, moves);
+    insIndex = 0;
+    resetLookoutMap(lookoutMap);
+    findAlternateColor(map, &bot, moves, &insIndex, lookoutMap);
 
     int i = 0;
     assert(moves[i++] == movr);
@@ -62,7 +73,9 @@ int main() {
 
     bot.x = 2, bot.y = 0;
     bot.orientation = Bottom;
-    findAlternateColor(map, &bot, moves);
+    insIndex = 0;
+    resetLookoutMap(lookoutMap);
+    findAlternateColor(map, &bot, moves, &insIndex, lookoutMap);
 
     int i = 0;
     assert(moves[i++] == movl);
@@ -82,7 +95,9 @@ int main() {
 
     bot.x = 2, bot.y = 0;
     bot.orientation = Bottom;
-    findAlternateColor(map, &bot, moves);
+    insIndex = 0;
+    resetLookoutMap(lookoutMap);
+    findAlternateColor(map, &bot, moves, &insIndex, lookoutMap);
 
     int i = 0;
     assert(moves[i++] == movf);
@@ -100,9 +115,7 @@ int main() {
     assert(moves[i++] == puth1);
     assert(moves[i++] == puth2);
     assert(moves[i++] == puth3);
-    assert(moves[i++] == stop);
   }
-
   printf("PathFind test passed!\n");
   return 0;
 }

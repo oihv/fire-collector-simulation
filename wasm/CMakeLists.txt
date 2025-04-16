@@ -8,7 +8,7 @@ set(CMAKE_C_STANDARD 99)
 set(CMAKE_BUILD_TYPE debug)
 
 # Add the main C library
-add_library(algo STATIC algo.c)
+add_library(algo STATIC algo.c utils.c)
 
 # Enable testing with CTest
 enable_testing()
