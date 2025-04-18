@@ -62,6 +62,7 @@ export function resetSimulation(): void {
 export function checkHighScore(): void {
   if (stats.score === 180) {
     stats.calcuteAvgMove();
+    stats.calculateAvgRotation();
     resetSimulation();
     initSimulation();
     stats.increaseWinstreak();

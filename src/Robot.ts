@@ -197,14 +197,24 @@ export class Robot extends MainObj {
 
   public automateMove(): void {
     if (this.idle === true) {
-      if (botMoves[this.#instructionIndex] === BotInstruction.stop) {
+
+      const currentInstruction = botMoves[this.#instructionIndex];
+
+      if (currentInstruction === BotInstruction.stop) {
         this.#instructionIndex = 0; // reset the instruction index
         this.#halt = true;
         return;
       }
-      this.executeMove(botMoves[this.#instructionIndex]);
+
+      if (currentInstruction >= BotInstruction.rotl && currentInstruction <= BotInstruction.rotb) {
+        this.executeMove(currentInstruction);  // Handle rotations
+        //this.idle = true;  // likely stays idle after rotating
+        stats.incrementRotations();
+      } else {
+        this.executeMove(currentInstruction);  // Handle regular movement
+        stats.incrementMoves();
+      }
       this.#instructionIndex++;
-      stats.incrementMoves();
     }
   }
 
