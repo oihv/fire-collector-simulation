@@ -19,14 +19,13 @@ extern void pathFind(BotInstruction *moves, FlameColor *const map) {
   uint8_t insIndex = 0;        // Index pointing to next empty slot on array
   uint8_t lookoutMap[5] = {0}; // Array to track availability of lookout
 
-  /* 
+  /*
   findAlternateColor(Red, matrix, &bot, moves, &insIndex, lookoutMap, );
   findAlternateColor(Red, matrix, &bot, moves, &insIndex, lookoutMap, );
   */
 
-
-  //moves[insIndex] = stop;
-   findBestAlternatePath(matrix, &bot, moves);
+  // moves[insIndex] = stop;
+  findBestAlternatePath(matrix, &bot, moves);
 }
 
 uint8_t findPathToTarget(FlameColor target, uint8_t lookoutFlag,
@@ -43,208 +42,273 @@ uint8_t findPathToTarget(FlameColor target, uint8_t lookoutFlag,
   return found;
 }
 
-//Improved findAlternateColor implementation
+// Improved findAlternateColor implementation
 
-int findAlternateColor(FlameColor target,
-  FlameColor map[MAP_SIZE][MAP_SIZE],
-  Bot *const bot,
-  BotInstruction *moves,
-  uint8_t *insIndex,
-  uint8_t *lookoutMap,
-  int mode)  // mode = 0 or 1
+int findAlternateColor(FlameColor target, FlameColor map[MAP_SIZE][MAP_SIZE],
+                       Bot *const bot, BotInstruction *moves, uint8_t *insIndex,
+                       uint8_t *lookoutMap,
+                       int mode) // mode = 0 or 1
 {
-Node targetPos;
+  Node targetPos;
 
-// 1st pickup
-if (!findPathToTarget(target, 0, map, bot, &targetPos, lookoutMap, moves, insIndex))
-return 0;
-moves[(*insIndex)++] = take;
-map[targetPos.x][targetPos.y] = Empty;
+  // 1st pickup
+  if (!findPathToTarget(target, 0, map, bot, &targetPos, lookoutMap, moves,
+                        insIndex))
+    return 0;
+  moves[(*insIndex)++] = take;
+  map[targetPos.x][targetPos.y] = Empty;
 
-// 2nd pickup (always toggled from first)
-target = toggleColor(target);
-if (!findPathToTarget(target, 0, map, bot, &targetPos, lookoutMap, moves, insIndex))
-return 0;
-moves[(*insIndex)++] = take;
-map[targetPos.x][targetPos.y] = Empty;
+  // 2nd pickup (always toggled from first)
+  target = toggleColor(target);
+  if (!findPathToTarget(target, 0, map, bot, &targetPos, lookoutMap, moves,
+                        insIndex))
+    return 0;
+  moves[(*insIndex)++] = take;
+  map[targetPos.x][targetPos.y] = Empty;
 
-// 3rd pickup (toggle unless mode==1)
-target = mode ? target : toggleColor(target);
-if (!findPathToTarget(target, 0, map, bot, &targetPos, lookoutMap, moves, insIndex))
-return 0;
-moves[(*insIndex)++] = take;
-map[targetPos.x][targetPos.y] = Empty;
+  // 3rd pickup (toggle unless mode==1)
+  target = mode ? target : toggleColor(target);
+  if (!findPathToTarget(target, 0, map, bot, &targetPos, lookoutMap, moves,
+                        insIndex))
+    return 0;
+  moves[(*insIndex)++] = take;
+  map[targetPos.x][targetPos.y] = Empty;
 
-// 4th pickup (always toggled from third)
-target = toggleColor(target);
-if (!findPathToTarget(target, 0, map, bot, &targetPos, lookoutMap, moves, insIndex))
-return 0;
-moves[(*insIndex)++] = take;
-map[targetPos.x][targetPos.y] = Empty;
+  // 4th pickup (always toggled from third)
+  target = toggleColor(target);
+  if (!findPathToTarget(target, 0, map, bot, &targetPos, lookoutMap, moves,
+                        insIndex))
+    return 0;
+  moves[(*insIndex)++] = take;
+  map[targetPos.x][targetPos.y] = Empty;
 
-// Move to lookout
-if (!findPathToTarget(target, 1, map, bot, &targetPos, lookoutMap, moves, insIndex))
-return 0;
-lookoutMap[targetPos.x] = 1;        // mark that column used
-moves[(*insIndex)++] = movf;        // advance one
-orientateBot(bot, Bottom, moves, insIndex);  // face down
-(*insIndex)++;                      // skip over redundant index adjustment
+  // Move to lookout
+  if (!findPathToTarget(target, 1, map, bot, &targetPos, lookoutMap, moves,
+                        insIndex))
+    return 0;
+  lookoutMap[targetPos.x] = 1;                // mark that column used
+  moves[(*insIndex)++] = movf;                // advance one
+  orientateBot(bot, Bottom, moves, insIndex); // face down
+  (*insIndex)++; // skip over redundant index adjustment
 
-// Place the flame
-moves[(*insIndex)++] = puth0;
-moves[(*insIndex)++] = puth1;
-moves[(*insIndex)++] = puth2;
-moves[(*insIndex)++] = puth3;
+  // Place the flame
+  moves[(*insIndex)++] = puth0;
+  moves[(*insIndex)++] = puth1;
+  moves[(*insIndex)++] = puth2;
+  moves[(*insIndex)++] = puth3;
 
-return 1;
+  return 1;
 }
 
 void findBestAlternatePath(FlameColor map[MAP_SIZE][MAP_SIZE], Bot *const bot,
-    BotInstruction *moves) {
-FlameColor mapCopy[MAP_SIZE][MAP_SIZE];
-uint8_t insIndex[16] = {0};
-uint8_t lookoutMap[5] = {0};
-BotInstruction movesBuffer[16][50] = {0};
+                           BotInstruction *moves) {
+  FlameColor mapCopy[MAP_SIZE][MAP_SIZE];
+  uint8_t insIndex[16] = {0};
+  uint8_t lookoutMap[5] = {0};
+  BotInstruction movesBuffer[16][50] = {0};
 
-// Strategy 00: RBRB, RBRB
-bot->x = 2; bot->y = 0; bot->orientation = Bottom;
-resetArray(lookoutMap, 4, 0);
-memcpy(mapCopy, map, sizeof(mapCopy));
-if (!findAlternateColor(Red,  mapCopy, bot, movesBuffer[0], &insIndex[0], lookoutMap, 0) ||
-!findAlternateColor(Red,  mapCopy, bot, movesBuffer[0], &insIndex[0], lookoutMap, 0))
-insIndex[0] = 0;
-
-// Strategy 01: RBRB, RBBR
-bot->x = 2; bot->y = 0; bot->orientation = Bottom;
-resetArray(lookoutMap, 4, 0);
-memcpy(mapCopy, map, sizeof(mapCopy));
-if (!findAlternateColor(Red,  mapCopy, bot, movesBuffer[1], &insIndex[1], lookoutMap, 0) ||
-!findAlternateColor(Red,  mapCopy, bot, movesBuffer[1], &insIndex[1], lookoutMap, 1))
-insIndex[1] = 0;
-
-// Strategy 02: RBRB, BRBR
-bot->x = 2; bot->y = 0; bot->orientation = Bottom;
-resetArray(lookoutMap, 4, 0);
-memcpy(mapCopy, map, sizeof(mapCopy));
-if (!findAlternateColor(Red,  mapCopy, bot, movesBuffer[2], &insIndex[2], lookoutMap, 0) ||
-!findAlternateColor(Blue, mapCopy, bot, movesBuffer[2], &insIndex[2], lookoutMap, 0))
-insIndex[2] = 0;
-
-// Strategy 03: RBRB, BRRB
-bot->x = 2; bot->y = 0; bot->orientation = Bottom;
-resetArray(lookoutMap, 4, 0);
-memcpy(mapCopy, map, sizeof(mapCopy));
-if (!findAlternateColor(Red,  mapCopy, bot, movesBuffer[3], &insIndex[3], lookoutMap, 0) ||
-!findAlternateColor(Blue, mapCopy, bot, movesBuffer[3], &insIndex[3], lookoutMap, 1))
-insIndex[3] = 0;
-
-// Strategy 04: RBBR, RBRB
-bot->x = 2; bot->y = 0; bot->orientation = Bottom;
-resetArray(lookoutMap, 4, 0);
-memcpy(mapCopy, map, sizeof(mapCopy));
-if (!findAlternateColor(Red,  mapCopy, bot, movesBuffer[4], &insIndex[4], lookoutMap, 1) ||
-!findAlternateColor(Red,  mapCopy, bot, movesBuffer[4], &insIndex[4], lookoutMap, 0))
-insIndex[4] = 0;
-
-// Strategy 05: RBBR, RBBR
-bot->x = 2; bot->y = 0; bot->orientation = Bottom;
-resetArray(lookoutMap, 4, 0);
-memcpy(mapCopy, map, sizeof(mapCopy));
-if (!findAlternateColor(Red,  mapCopy, bot, movesBuffer[5], &insIndex[5], lookoutMap, 1) ||
-!findAlternateColor(Red,  mapCopy, bot, movesBuffer[5], &insIndex[5], lookoutMap, 1))
-insIndex[5] = 0;
-
-// Strategy 06: RBBR, BRBR
-bot->x = 2; bot->y = 0; bot->orientation = Bottom;
-resetArray(lookoutMap, 4, 0);
-memcpy(mapCopy, map, sizeof(mapCopy));
-if (!findAlternateColor(Red,  mapCopy, bot, movesBuffer[6], &insIndex[6], lookoutMap, 1) ||
-!findAlternateColor(Blue, mapCopy, bot, movesBuffer[6], &insIndex[6], lookoutMap, 0))
-insIndex[6] = 0;
-
-// Strategy 07: RBBR, BRRB
-bot->x = 2; bot->y = 0; bot->orientation = Bottom;
-resetArray(lookoutMap, 4, 0);
-memcpy(mapCopy, map, sizeof(mapCopy));
-if (!findAlternateColor(Red,  mapCopy, bot, movesBuffer[7], &insIndex[7], lookoutMap, 1) ||
-!findAlternateColor(Blue, mapCopy, bot, movesBuffer[7], &insIndex[7], lookoutMap, 1))
-insIndex[7] = 0;
-
-// Strategy 08: BRBR, RBRB
-bot->x = 2; bot->y = 0; bot->orientation = Bottom;
-resetArray(lookoutMap, 4, 0);
-memcpy(mapCopy, map, sizeof(mapCopy));
-if (!findAlternateColor(Blue, mapCopy, bot, movesBuffer[8], &insIndex[8], lookoutMap, 0) ||
-!findAlternateColor(Red,  mapCopy, bot, movesBuffer[8], &insIndex[8], lookoutMap, 0))
-insIndex[8] = 0;
-
-// Strategy 09: BRBR, RBBR
-bot->x = 2; bot->y = 0; bot->orientation = Bottom;
-resetArray(lookoutMap, 4, 0);
-memcpy(mapCopy, map, sizeof(mapCopy));
-if (!findAlternateColor(Blue, mapCopy, bot, movesBuffer[9], &insIndex[9], lookoutMap, 0) ||
-!findAlternateColor(Red,  mapCopy, bot, movesBuffer[9], &insIndex[9], lookoutMap, 1))
-insIndex[9] = 0;
-
-// Strategy 10: BRBR, BRBR
-bot->x = 2; bot->y = 0; bot->orientation = Bottom;
-resetArray(lookoutMap, 4, 0);
-memcpy(mapCopy, map, sizeof(mapCopy));
-if (!findAlternateColor(Blue, mapCopy, bot, movesBuffer[10], &insIndex[10], lookoutMap, 0) ||
-!findAlternateColor(Blue, mapCopy, bot, movesBuffer[10], &insIndex[10], lookoutMap, 0))
-insIndex[10] = 0;
-
-// Strategy 11: BRBR, BRRB
-bot->x = 2; bot->y = 0; bot->orientation = Bottom;
-resetArray(lookoutMap, 4, 0);
-memcpy(mapCopy, map, sizeof(mapCopy));
-if (!findAlternateColor(Blue, mapCopy, bot, movesBuffer[11], &insIndex[11], lookoutMap, 0) ||
-!findAlternateColor(Blue, mapCopy, bot, movesBuffer[11], &insIndex[11], lookoutMap, 1))
-insIndex[11] = 0;
-
-// Strategy 12: BRRB, RBRB
-bot->x = 2; bot->y = 0; bot->orientation = Bottom;
-resetArray(lookoutMap, 4, 0);
-memcpy(mapCopy, map, sizeof(mapCopy));
-if (!findAlternateColor(Blue, mapCopy, bot, movesBuffer[12], &insIndex[12], lookoutMap, 0) ||
-!findAlternateColor(Blue, mapCopy, bot, movesBuffer[12], &insIndex[12], lookoutMap, 0))
-insIndex[12] = 0;
-
-  // Strategy 13: BRRB, RBBR
-  bot->x = 2; bot->y = 0; bot->orientation = Bottom;
+  // Strategy 00: RBRB, RBRB
+  bot->x = 2;
+  bot->y = 0;
+  bot->orientation = Bottom;
   resetArray(lookoutMap, 4, 0);
   memcpy(mapCopy, map, sizeof(mapCopy));
-    if (!findAlternateColor(Blue, mapCopy, bot, movesBuffer[13], &insIndex[13], lookoutMap, 1) ||
-        !findAlternateColor(Red,  mapCopy, bot, movesBuffer[13], &insIndex[13], lookoutMap, 1))
-        insIndex[13] = 0;
+  if (!findAlternateColor(Red, mapCopy, bot, movesBuffer[0], &insIndex[0],
+                          lookoutMap, 0) ||
+      !findAlternateColor(Red, mapCopy, bot, movesBuffer[0], &insIndex[0],
+                          lookoutMap, 0))
+    insIndex[0] = 0;
 
-    // Strategy 14: BRRB, BRBR
-    bot->x = 2; bot->y = 0; bot->orientation = Bottom;
-    resetArray(lookoutMap, 4, 0);
-    memcpy(mapCopy, map, sizeof(mapCopy));
-    if (!findAlternateColor(Blue, mapCopy, bot, movesBuffer[14], &insIndex[14], lookoutMap, 1) ||
-        !findAlternateColor(Blue, mapCopy, bot, movesBuffer[14], &insIndex[14], lookoutMap, 0))
-        insIndex[14] = 0;
+  // Strategy 01: RBRB, RBBR
+  bot->x = 2;
+  bot->y = 0;
+  bot->orientation = Bottom;
+  resetArray(lookoutMap, 4, 0);
+  memcpy(mapCopy, map, sizeof(mapCopy));
+  if (!findAlternateColor(Red, mapCopy, bot, movesBuffer[1], &insIndex[1],
+                          lookoutMap, 0) ||
+      !findAlternateColor(Red, mapCopy, bot, movesBuffer[1], &insIndex[1],
+                          lookoutMap, 1))
+    insIndex[1] = 0;
 
-    // Strategy 15: BRRB, BRRB
-    bot->x = 2; bot->y = 0; bot->orientation = Bottom;
-    resetArray(lookoutMap, 4, 0);
-    memcpy(mapCopy, map, sizeof(mapCopy));
-    if (!findAlternateColor(Blue, mapCopy, bot, movesBuffer[15], &insIndex[15], lookoutMap, 1) ||
-        !findAlternateColor(Blue, mapCopy, bot, movesBuffer[15], &insIndex[15], lookoutMap, 1))
-        insIndex[15] = 0;
-        
-uint8_t min = findMin(insIndex, 16);  // Use 16, not 12 or 13
+  // Strategy 02: RBRB, BRBR
+  bot->x = 2;
+  bot->y = 0;
+  bot->orientation = Bottom;
+  resetArray(lookoutMap, 4, 0);
+  memcpy(mapCopy, map, sizeof(mapCopy));
+  if (!findAlternateColor(Red, mapCopy, bot, movesBuffer[2], &insIndex[2],
+                          lookoutMap, 0) ||
+      !findAlternateColor(Blue, mapCopy, bot, movesBuffer[2], &insIndex[2],
+                          lookoutMap, 0))
+    insIndex[2] = 0;
 
-for (uint8_t i = 0; i < 16; i++) {
+  // Strategy 03: RBRB, BRRB
+  bot->x = 2;
+  bot->y = 0;
+  bot->orientation = Bottom;
+  resetArray(lookoutMap, 4, 0);
+  memcpy(mapCopy, map, sizeof(mapCopy));
+  if (!findAlternateColor(Red, mapCopy, bot, movesBuffer[3], &insIndex[3],
+                          lookoutMap, 0) ||
+      !findAlternateColor(Blue, mapCopy, bot, movesBuffer[3], &insIndex[3],
+                          lookoutMap, 1))
+    insIndex[3] = 0;
+
+  // Strategy 04: RBBR, RBRB
+  bot->x = 2;
+  bot->y = 0;
+  bot->orientation = Bottom;
+  resetArray(lookoutMap, 4, 0);
+  memcpy(mapCopy, map, sizeof(mapCopy));
+  if (!findAlternateColor(Red, mapCopy, bot, movesBuffer[4], &insIndex[4],
+                          lookoutMap, 1) ||
+      !findAlternateColor(Red, mapCopy, bot, movesBuffer[4], &insIndex[4],
+                          lookoutMap, 0))
+    insIndex[4] = 0;
+
+  // Strategy 05: RBBR, RBBR
+  bot->x = 2;
+  bot->y = 0;
+  bot->orientation = Bottom;
+  resetArray(lookoutMap, 4, 0);
+  memcpy(mapCopy, map, sizeof(mapCopy));
+  if (!findAlternateColor(Red, mapCopy, bot, movesBuffer[5], &insIndex[5],
+                          lookoutMap, 1) ||
+      !findAlternateColor(Red, mapCopy, bot, movesBuffer[5], &insIndex[5],
+                          lookoutMap, 1))
+    insIndex[5] = 0;
+
+  // Strategy 06: RBBR, BRBR
+  bot->x = 2;
+  bot->y = 0;
+  bot->orientation = Bottom;
+  resetArray(lookoutMap, 4, 0);
+  memcpy(mapCopy, map, sizeof(mapCopy));
+  if (!findAlternateColor(Red, mapCopy, bot, movesBuffer[6], &insIndex[6],
+                          lookoutMap, 1) ||
+      !findAlternateColor(Blue, mapCopy, bot, movesBuffer[6], &insIndex[6],
+                          lookoutMap, 0))
+    insIndex[6] = 0;
+
+  // Strategy 07: RBBR, BRRB
+  bot->x = 2;
+  bot->y = 0;
+  bot->orientation = Bottom;
+  resetArray(lookoutMap, 4, 0);
+  memcpy(mapCopy, map, sizeof(mapCopy));
+  if (!findAlternateColor(Red, mapCopy, bot, movesBuffer[7], &insIndex[7],
+                          lookoutMap, 1) ||
+      !findAlternateColor(Blue, mapCopy, bot, movesBuffer[7], &insIndex[7],
+                          lookoutMap, 1))
+    insIndex[7] = 0;
+
+  // Strategy 08: BRBR, RBRB
+  bot->x = 2;
+  bot->y = 0;
+  bot->orientation = Bottom;
+  resetArray(lookoutMap, 4, 0);
+  memcpy(mapCopy, map, sizeof(mapCopy));
+  if (!findAlternateColor(Blue, mapCopy, bot, movesBuffer[8], &insIndex[8],
+                          lookoutMap, 0) ||
+      !findAlternateColor(Red, mapCopy, bot, movesBuffer[8], &insIndex[8],
+                          lookoutMap, 0))
+    insIndex[8] = 0;
+
+  // Strategy 09: BRBR, RBBR
+  bot->x = 2;
+  bot->y = 0;
+  bot->orientation = Bottom;
+  resetArray(lookoutMap, 4, 0);
+  memcpy(mapCopy, map, sizeof(mapCopy));
+  if (!findAlternateColor(Blue, mapCopy, bot, movesBuffer[9], &insIndex[9],
+                          lookoutMap, 0) ||
+      !findAlternateColor(Red, mapCopy, bot, movesBuffer[9], &insIndex[9],
+                          lookoutMap, 1))
+    insIndex[9] = 0;
+
+  // Strategy 10: BRBR, BRBR
+  bot->x = 2;
+  bot->y = 0;
+  bot->orientation = Bottom;
+  resetArray(lookoutMap, 4, 0);
+  memcpy(mapCopy, map, sizeof(mapCopy));
+  if (!findAlternateColor(Blue, mapCopy, bot, movesBuffer[10], &insIndex[10],
+                          lookoutMap, 0) ||
+      !findAlternateColor(Blue, mapCopy, bot, movesBuffer[10], &insIndex[10],
+                          lookoutMap, 0))
+    insIndex[10] = 0;
+
+  // Strategy 11: BRBR, BRRB
+  bot->x = 2;
+  bot->y = 0;
+  bot->orientation = Bottom;
+  resetArray(lookoutMap, 4, 0);
+  memcpy(mapCopy, map, sizeof(mapCopy));
+  if (!findAlternateColor(Blue, mapCopy, bot, movesBuffer[11], &insIndex[11],
+                          lookoutMap, 0) ||
+      !findAlternateColor(Blue, mapCopy, bot, movesBuffer[11], &insIndex[11],
+                          lookoutMap, 1))
+    insIndex[11] = 0;
+
+  // Strategy 12: BRRB, RBRB
+  bot->x = 2;
+  bot->y = 0;
+  bot->orientation = Bottom;
+  resetArray(lookoutMap, 4, 0);
+  memcpy(mapCopy, map, sizeof(mapCopy));
+  if (!findAlternateColor(Blue, mapCopy, bot, movesBuffer[12], &insIndex[12],
+                          lookoutMap, 0) ||
+      !findAlternateColor(Blue, mapCopy, bot, movesBuffer[12], &insIndex[12],
+                          lookoutMap, 0))
+    insIndex[12] = 0;
+
+  // Strategy 13: BRRB, RBBR
+  bot->x = 2;
+  bot->y = 0;
+  bot->orientation = Bottom;
+  resetArray(lookoutMap, 4, 0);
+  memcpy(mapCopy, map, sizeof(mapCopy));
+  if (!findAlternateColor(Blue, mapCopy, bot, movesBuffer[13], &insIndex[13],
+                          lookoutMap, 1) ||
+      !findAlternateColor(Red, mapCopy, bot, movesBuffer[13], &insIndex[13],
+                          lookoutMap, 1))
+    insIndex[13] = 0;
+
+  // Strategy 14: BRRB, BRBR
+  bot->x = 2;
+  bot->y = 0;
+  bot->orientation = Bottom;
+  resetArray(lookoutMap, 4, 0);
+  memcpy(mapCopy, map, sizeof(mapCopy));
+  if (!findAlternateColor(Blue, mapCopy, bot, movesBuffer[14], &insIndex[14],
+                          lookoutMap, 1) ||
+      !findAlternateColor(Blue, mapCopy, bot, movesBuffer[14], &insIndex[14],
+                          lookoutMap, 0))
+    insIndex[14] = 0;
+
+  // Strategy 15: BRRB, BRRB
+  bot->x = 2;
+  bot->y = 0;
+  bot->orientation = Bottom;
+  resetArray(lookoutMap, 4, 0);
+  memcpy(mapCopy, map, sizeof(mapCopy));
+  if (!findAlternateColor(Blue, mapCopy, bot, movesBuffer[15], &insIndex[15],
+                          lookoutMap, 1) ||
+      !findAlternateColor(Blue, mapCopy, bot, movesBuffer[15], &insIndex[15],
+                          lookoutMap, 1))
+    insIndex[15] = 0;
+
+  uint8_t min = findMin(insIndex, 16); // Use 16, not 12 or 13
+
+  for (uint8_t i = 0; i < 16; i++) {
     if (insIndex[i] == min) {
-          memcpy(moves, movesBuffer[i], sizeof(BotInstruction) * min);
-                break;
-            }
-        }
-        moves[min] = stop;
+      memcpy(moves, movesBuffer[i], sizeof(BotInstruction) * min);
+      break;
+    }
+  }
+  moves[min] = stop;
 }
-
 
 int BFS(const FlameColor map[MAP_SIZE][MAP_SIZE], Bot *const bot,
         FlameColor target, Node visited[MAP_SIZE][MAP_SIZE], Node *targetPos,
@@ -328,7 +392,8 @@ void traceBackPath(const Node visited[MAP_SIZE][MAP_SIZE], Stack *prevNodes,
   popStack(prevNodes); // To pop the targetNode
 }
 
-void generateInstruction(Stack *prevNodes, Bot *bot, BotInstruction *moves, uint8_t *insIndex) {
+void generateInstruction(Stack *prevNodes, Bot *bot, BotInstruction *moves,
+                         uint8_t *insIndex) {
   while (prevNodes->size > 0) {
     Node next = popStack(prevNodes);
 
