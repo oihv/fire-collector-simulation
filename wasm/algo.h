@@ -13,13 +13,13 @@ uint8_t findPathToTarget(FlameColor target, uint8_t lookoutFlag,
                          FlameColor map[MAP_SIZE][MAP_SIZE], Bot *const bot,
                          Node *targetPos, uint8_t *lookoutMap,
                          BotInstruction *moves, uint8_t *insIndex);
-int findAlternateColor(FlameColor target,
-                                FlameColor map[MAP_SIZE][MAP_SIZE],
-                                Bot *const bot,
-                                BotInstruction *moves,
-                                uint8_t *insIndex,
-                                uint8_t *lookoutMap,
-                                int mode);
+
+static int findPhasePath(const FlameColor pattern[4], uint8_t lookoutFlag,
+                                FlameColor map[MAP_SIZE][MAP_SIZE], Bot *const bot,
+                                BotInstruction *moves, uint8_t *insIndex,
+                                uint8_t *lookoutMap);
+
+                                
 
 void findBestAlternatePath(FlameColor map[MAP_SIZE][MAP_SIZE], Bot *const bot,
                            BotInstruction *moves);
