@@ -120,3 +120,6 @@ to output from printf() to console.log() you must put '\n'
 2. Second improvement, instead of fixed to search red first etc, start by
    searching all the possibilities, and determine the minimum moves it can make.
    Average Moves = <35 (100 win streak)
+3. Third improvement, added 16 different permutations, manually typed them down.
+   Average moves down to around 32.
+4. Fourth improvement, added more permutations (~144, value to be made sure again), added a for loop for the    whole thing for better flow and readability. Average moves down to 22 moves and 5.5 rotations.
