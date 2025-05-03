@@ -43,9 +43,9 @@ export function simulate(): void {
 
 export function initSimulation(): void {
   map.initMap(FlameColor.Empty);
-    let arr: number[][] = [[2, 2, 0, 0, 1],
-    [2, 1, 0, 0, 0],
-    [2, 1, 0, 0, 1]]
+    // let arr: number[][] = [[2, 2, 0, 0, 1],
+    // [2, 1, 0, 0, 0],
+    // [2, 1, 0, 0, 1]]
   // map.populateFixedFire(arr);
   map.populateRandomFire();
   initFire();

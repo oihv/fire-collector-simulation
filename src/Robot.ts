@@ -104,12 +104,12 @@ export class Robot extends MainObj {
     return Array(newSpeedX, newSpeedY);
   }
 
-  private updateOrientation(): void {
-    if (this.speedX === 1) this.orientation = BotOrientation.Right;
-    else if (this.speedY === -1) this.orientation = BotOrientation.Top;
-    else if (this.speedX === -1) this.orientation = BotOrientation.Left;
-    else if (this.speedY === 1) this.orientation = BotOrientation.Bottom;
-  }
+  // private updateOrientation(): void {
+  //   if (this.speedX === 1) this.orientation = BotOrientation.Right;
+  //   else if (this.speedY === -1) this.orientation = BotOrientation.Top;
+  //   else if (this.speedX === -1) this.orientation = BotOrientation.Left;
+  //   else if (this.speedY === 1) this.orientation = BotOrientation.Bottom;
+  // }
 
   public rotate(dir: BotOrientation): void {
     this.orientation = dir;

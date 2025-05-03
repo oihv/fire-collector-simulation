@@ -5,10 +5,10 @@ import { FlameColor } from "./Fire";
 export class Stats {
   static #score: number = 0;
   static #pairHigh: number = 45;
-  static #pairLow: number = 30;
+  // static #pairLow: number = 30;
   static #singleHigh: number = 15;
-  static #singleLow: number = 10;
-  static #trialsNum: number = 0;
+  // static #singleLow: number = 10;
+  // static #trialsNum: number = 0;
   static #winstreak: number = 0;
   static #moves: number = 0;
   static #rotations: number = 0; //New definition for rotation
