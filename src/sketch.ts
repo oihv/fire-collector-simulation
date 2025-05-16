@@ -29,7 +29,7 @@ const s = (p: p5) => {
   }
   p.setup = async () => {
     // Create slider for speed conrol
-    speedSlider = p.createSlider(0, 200, 150, 10);
+    speedSlider = p.createSlider(0, 200, 50, 10);
     speedSlider.position(2000, 500); // This positions outside of <canvas/>
     speedSlider.size(150);
 

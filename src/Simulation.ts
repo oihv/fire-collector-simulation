@@ -5,7 +5,7 @@ import { FlameColor, clearFire, initFire } from "./Fire";
 import { stats } from "./sketch";
 
 export let botMoves: BotInstruction[] = [];
-const botMovesLength: number = 50; // Placeholder number
+const botMovesLength: number = 100; // Placeholder number
 declare const Module: any;
 
 const TYPES = {
