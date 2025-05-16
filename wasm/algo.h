@@ -47,7 +47,7 @@ void optimizeTorchPlacementStrategy(FlameColor map[MAP_SIZE][MAP_SIZE], Bot *con
  * @return 1 if successful, 0 if impossible to complete
  */
 static int processTorchPlacementPhase(
-    const FlameColor pattern[4], uint8_t lookoutFlag,
+    const FlameColor pattern[3], uint8_t lookoutFlag,
     FlameColor map[MAP_SIZE][MAP_SIZE], Bot *const bot,
     BotInstruction *moves, uint8_t *insIndex,
     uint8_t *lookoutMap

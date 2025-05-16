@@ -4,14 +4,16 @@
 #include <string.h>
 #include <limits.h>
 
-static const FlameColor patterns[PHASES][4] = {
-    {Red, Red, Blue, Blue},
-    {Red, Blue, Red, Blue},
-    {Red, Blue, Blue, Red},
-    {Blue, Blue, Red, Red},
-    {Blue, Red, Blue, Red},
-    {Blue, Red, Red, Blue}
+static const FlameColor patterns[PHASES][3] = {
+    {Red, Red, Blue},
+    {Red, Blue, Red},
+    {Red, Blue, Blue},
+    {Blue, Blue, Red},
+    {Blue, Red, Blue},
+    {Blue, Red, Red}
 };
+
+
 
 //==============================================================================
 // MAIN ALGORITHM ENTRY POINT
@@ -27,7 +29,7 @@ extern void pathFind(BotInstruction *moves, FlameColor *const map) {
     bot.x = 2;
     bot.y = 0;
     bot.orientation = Bottom;
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < 3; i++) {
         bot.storage[i] = 0;     // Empty flame storage
     }
 
@@ -38,17 +40,16 @@ extern void pathFind(BotInstruction *moves, FlameColor *const map) {
     optimizeTorchPlacementStrategy(matrix, &bot, moves);
 }
 
-// Helper: perform one 4-torch phase + lookout + place
 static int processTorchPlacementPhase(
-    const FlameColor pattern[4], uint8_t lookoutFlag,
+    const FlameColor pattern[3], uint8_t lookoutFlag,
     FlameColor map[MAP_SIZE][MAP_SIZE], Bot *const bot,
     BotInstruction *moves, uint8_t *insIndex,
     uint8_t *lookoutMap
 ) {
     Node targetPos;
     
-    // Step 1: Collect 4 flames in the specified pattern
-    for (int i = 0; i < 4; ++i) {
+    // Step 1: Collect 3 flames in the specified pattern
+    for (int i = 0; i < 3; ++i) {
         FlameColor target = pattern[i];
         // Navigate to the next flame of the target color
         if (!navigateToTarget(target, 0, map, bot, &targetPos, lookoutMap, moves, insIndex)) {
@@ -60,7 +61,7 @@ static int processTorchPlacementPhase(
     }
 
     // Step 2: Navigate to lookout position (bottom row)
-    FlameColor lastColor = pattern[3];
+    FlameColor lastColor = pattern[2];
     if (!navigateToTarget(lastColor, 1, map, bot, &targetPos, lookoutMap, moves, insIndex)) {
         return 0; // Failed to find path to lookout position
     }
@@ -75,9 +76,9 @@ static int processTorchPlacementPhase(
     orientateBot(bot, Bottom, moves, insIndex);
     (*insIndex)++; // Skip redundant index adjustment from orientateBot
 
-    // Step 3: Place the 4 torches horizontally
-    static const BotInstruction putInstr[4] = {puth0, puth1, puth2, puth3};
-    for (int j = 0; j < 4; ++j) {
+    // Step 3: Place the 3 torches horizontally
+    static const BotInstruction putInstr[3] = {puth0, puth1, puth2};
+    for (int j = 0; j < 3; ++j) {
         moves[(*insIndex)++] = putInstr[j];
     }
     
